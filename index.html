@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Variance and Popcorn Calculator</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Color Palette */
+            --bg-color: #0d0d0d;
+            --card-bg: rgba(25, 25, 28, 0.6);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --neon-red: #ff3333;
+            --neon-orange: #ff7700;
+            --text-main: #f0f0f0;
+            --text-muted: #a0a0a0;
+            --favorable: #4ade80; /* Green */
+            --unfavorable: #f87171; /* Light Coral/Red */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at 50% 0%, #2a2a2a 0%, var(--bg-color) 70%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--neon-red), var(--neon-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+            flex: 1;
+        }
+
+        @media (min-width: 768px) {
+            main {
+                flex-direction: row;
+                align-items: flex-start;
+                justify-content: center;
+            }
+        }
+
+        /* Glassmorphism Card Style */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-orange), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(255, 119, 0, 0.3);
+            box-shadow: 0 0 20px rgba(255, 51, 51, 0.15), 0 10px 30px rgba(0,0,0,0.5);
+            transform: translateY(-2px);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Form Inputs */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-group label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        input[type="number"] {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--neon-orange);
+            box-shadow: 0 0 8px rgba(255, 119, 0, 0.3);
+        }
+
+        /* Radio Buttons */
+        .radio-group-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .radio-options {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        input[type="radio"] {
+            accent-color: var(--neon-orange);
+            width: 1.2rem;
+            height: 1.2rem;
+            cursor: pointer;
+        }
+
+        /* Dynamic Inputs (Actuals) */
+        .dynamic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-icon {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .btn-icon:hover:not(:disabled) {
+            background: rgba(255, 119, 0, 0.2);
+            border-color: var(--neon-orange);
+        }
+
+        .btn-icon:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            filter: grayscale(100%);
+        }
+
+        #actuals-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        /* Results & Breakdown */
+        .results-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            min-height: 120px;
+        }
+
+        .error-msg {
+            color: var(--unfavorable);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1rem;
+        }
+
+        .result-row strong {
+            font-size: 1.25rem;
+        }
+
+        .breakdown-section {
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 3px solid var(--card-border);
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        /* Reset Button */
+        .btn-reset {
+            background: transparent;
+            border: 1px solid rgba(255, 51, 51, 0.3);
+            color: var(--neon-red);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            margin-top: auto;
+        }
+
+        .btn-reset:hover {
+            background: rgba(255, 51, 51, 0.1);
+            border-color: var(--neon-red);
+            box-shadow: 0 0 10px rgba(255, 51, 51, 0.2);
+        }
+
+        /* Conditional Colors */
+        .text-favorable { color: var(--favorable); }
+        .text-unfavorable { color: var(--unfavorable); }
+
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--card-border);
+            padding-top: 1rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Variance and Popcorn Calculator</h1>
+        <p>Real-time computation metrics</p>
+    </header>
+
+    <main>
+        <!-- Tool 1: Inventory Variance Calculator (Moved to Top) -->
+        <section class="card" id="inventory-card">
+            <h2>📦 Inventory Variance & Usage</h2>
+            
+            <div class="input-group">
+                <label for="inv-beg">Beginning Balance</label>
+                <input type="number" id="inv-beg" placeholder="0" step="any">
+            </div>
+
+            <div class="input-group">
+                <div class="dynamic-header">
+                    <label>Actuals</label>
+                    <button class="btn-icon" id="btn-add-actual" title="Add Actual Input (Max 3)">
+                        ➕
+                    </button>
+                </div>
+                <div id="actuals-container">
+                    <input type="number" class="inv-actual" placeholder="Actual 1" step="any">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="inv-end">Ending Balance</label>
+                <input type="number" id="inv-end" placeholder="0" step="any">
+            </div>
+
+            <div class="input-group">
+                <label for="inv-plan">Plan / Target</label>
+                <input type="number" id="inv-plan" placeholder="0" step="any">
+            </div>
+
+            <div class="results-section">
+                <div id="inv-error" class="error-msg">
+                    ⚠️ Please fill Beginning, Ending, and Plan.
+                </div>
+                <div id="inv-results" style="display: none;">
+                    <div class="result-row"><span>Total Usage:</span> <strong id="res-usage">0</strong></div>
+                    <div class="result-row"><span>Variance:</span> <strong id="res-var">0</strong></div>
+                    <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 0.5rem 0;">
+                    <div class="result-row"><span>Percent Variance:</span> <strong id="res-pct">0%</strong></div>
+                </div>
+            </div>
+
+            <div class="breakdown-section" id="inv-breakdown">Formula Breakdown will appear here...</div>
+
+            <button class="btn-reset" id="btn-reset-inv">
+                🔄 Reset
+            </button>
+        </section>
+
+        <!-- Tool 2: Popcorn Flavor Calculator (Moved to Bottom) -->
+        <section class="card" id="popcorn-card">
+            <h2>🍿 Popcorn Flavor Calculator</h2>
+            
+            <div class="input-group">
+                <label for="pop-weight">Weight (grams)</label>
+                <input type="number" id="pop-weight" placeholder="e.g., 250" step="any">
+            </div>
+
+            <div class="radio-group-container">
+                <label>Type</label>
+                <div class="radio-options">
+                    <label class="radio-label">
+                        <input type="radio" name="pop-type" value="base" checked> Base (Popcorn + Plastic)
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="pop-type" value="popcorn-only"> Popcorn Only
+                    </label>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <div id="pop-error" class="error-msg" style="display: none;">
+                    ⚠️ Please enter a valid weight.
+                </div>
+                <div id="pop-results" style="display: none;">
+                    <div class="result-row"><span>Base Weight:</span> <strong id="res-baseweight">0 g</strong></div>
+                    <div class="result-row"><span>Flavor Amount:</span> <strong id="res-flavor">0 g</strong></div>
+                    <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 0.5rem 0;">
+                    <div class="result-row" style="color: var(--neon-orange);"><span>Total:</span> <strong id="res-poptotal">0 g</strong></div>
+                </div>
+            </div>
+
+            <div class="breakdown-section" id="pop-breakdown">Formula Breakdown will appear here...</div>
+
+            <button class="btn-reset" id="btn-reset-pop">
+                🔄 Reset
+            </button>
+        </section>
+
+    </main>
+
+    <footer>
+        created by Tyler Jarvey
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            /* =========================================
+               Tool 1: Inventory Variance Logic
+               ========================================= */
+            const invBegInput = document.getElementById('inv-beg');
+            const invEndInput = document.getElementById('inv-end');
+            const invPlanInput = document.getElementById('inv-plan');
+            const actualsContainer = document.getElementById('actuals-container');
+            const btnAddActual = document.getElementById('btn-add-actual');
+
+            const invError = document.getElementById('inv-error');
+            const invResults = document.getElementById('inv-results');
+            const resUsage = document.getElementById('res-usage');
+            const resVar = document.getElementById('res-var');
+            const resPct = document.getElementById('res-pct');
+            const invBreakdown = document.getElementById('inv-breakdown');
+            const btnResetInv = document.getElementById('btn-reset-inv');
+
+            let actualInputsCount = 1;
+
+            function attachActualListeners() {
+                const actualInputs = document.querySelectorAll('.inv-actual');
+                actualInputs.forEach(input => {
+                    input.removeEventListener('input', calculateInventory); // prevent duplicates
+                    input.addEventListener('input', calculateInventory);
+                });
+            }
+
+            function handleAddActual() {
+                if (actualInputsCount < 3) {
+                    actualInputsCount++;
+                    const newInput = document.createElement('input');
+                    newInput.type = 'number';
+                    newInput.className = 'inv-actual';
+                    newInput.placeholder = `Actual ${actualInputsCount}`;
+                    newInput.step = 'any';
+                    actualsContainer.appendChild(newInput);
+                    attachActualListeners();
+                    calculateInventory();
+
+                    if (actualInputsCount === 3) {
+                        btnAddActual.disabled = true;
+                    }
+                }
+            }
+
+            function calculateInventory() {
+                const begStr = invBegInput.value;
+                const endStr = invEndInput.value;
+                const planStr = invPlanInput.value;
+
+                if (begStr.trim() === '' || endStr.trim() === '' || planStr.trim() === '') {
+                    invError.style.display = 'flex';
+                    invResults.style.display = 'none';
+                    invBreakdown.innerHTML = "Awaiting Beginning, Ending, and Plan inputs...";
+                    return;
+                }
+
+                const beg = parseFloat(begStr);
+                const end = parseFloat(endStr);
+                const plan = parseFloat(planStr);
+
+                // Sum Actuals
+                let totalActuals = 0;
+                let actualsList = [];
+                document.querySelectorAll('.inv-actual').forEach(input => {
+                    let val = parseFloat(input.value);
+                    if (isNaN(val)) val = 0;
+                    totalActuals += val;
+                    actualsList.push(val);
+                });
+
+                invError.style.display = 'none';
+                invResults.style.display = 'block';
+
+                // Core Logic
+                const totalUsage = beg + totalActuals - end;
+                const variance = plan - totalUsage;
+                
+                let pctVariance = 0;
+                if (plan !== 0) {
+                    // Crucial Rounding Rule applied here
+                    pctVariance = Math.round((variance / plan) * 100); 
+                }
+
+                // Output Updating
+                resUsage.textContent = totalUsage.toFixed(2);
+                resVar.textContent = variance.toFixed(2);
+                resPct.textContent = `${pctVariance}%`;
+
+                // Conditional Styling
+                resVar.className = ''; 
+                resPct.className = '';
+                if (variance > 0) {
+                    resVar.classList.add('text-favorable');
+                    resPct.classList.add('text-favorable');
+                } else if (variance < 0) {
+                    resVar.classList.add('text-unfavorable');
+                    resPct.classList.add('text-unfavorable');
+                }
+
+                // Breakdown String
+                let breakdownStr = `[1] Total Actuals\n    Sum of inputs = ${actualsList.join(' + ')} = ${totalActuals}\n\n`;
+                breakdownStr += `[2] Total Usage\n    Usage = Beginning + Total Actuals - Ending\n    Usage = ${beg} + ${totalActuals} - ${end} = ${totalUsage.toFixed(2)}\n\n`;
+                breakdownStr += `[3] Variance\n    Variance = Plan - Total Usage\n    Variance = ${plan} - ${totalUsage.toFixed(2)} = ${variance.toFixed(2)}\n\n`;
+                
+                if (plan !== 0) {
+                    let rawPct = ((variance / plan) * 100).toFixed(2);
+                    breakdownStr += `[4] Percent Variance\n    % Var = (Variance / Plan) * 100\n    % Var = (${variance.toFixed(2)} / ${plan}) * 100 = ${rawPct}%\n    Rounded = ${pctVariance}%`;
+                } else {
+                    breakdownStr += `[4] Percent Variance\n    Plan is 0. Cannot divide by zero.`;
+                    resPct.textContent = "N/A";
+                    resPct.className = '';
+                }
+
+                invBreakdown.innerHTML = breakdownStr;
+            }
+
+            // Event Listeners for Inventory
+            invBegInput.addEventListener('input', calculateInventory);
+            invEndInput.addEventListener('input', calculateInventory);
+            invPlanInput.addEventListener('input', calculateInventory);
+            btnAddActual.addEventListener('click', handleAddActual);
+            
+            btnResetInv.addEventListener('click', () => {
+                invBegInput.value = '';
+                invEndInput.value = '';
+                invPlanInput.value = '';
+                
+                // Reset dynamic actuals
+                actualsContainer.innerHTML = '<input type="number" class="inv-actual" placeholder="Actual 1" step="any">';
+                actualInputsCount = 1;
+                btnAddActual.disabled = false;
+                attachActualListeners();
+                
+                calculateInventory();
+            });
+
+            // Initial Setup
+            attachActualListeners();
+            calculateInventory();
+
+            /* =========================================
+               Tool 2: Popcorn Flavor Calculator Logic
+               ========================================= */
+            const popWeightInput = document.getElementById('pop-weight');
+            const popTypeRadios = document.getElementsByName('pop-type');
+            
+            const popError = document.getElementById('pop-error');
+            const popResults = document.getElementById('pop-results');
+            const resBaseWeight = document.getElementById('res-baseweight');
+            const resFlavor = document.getElementById('res-flavor');
+            const resPopTotal = document.getElementById('res-poptotal');
+            const popBreakdown = document.getElementById('pop-breakdown');
+            const btnResetPop = document.getElementById('btn-reset-pop');
+
+            function calculatePopcorn() {
+                const weightStr = popWeightInput.value;
+                const weight = parseFloat(weightStr);
+
+                if (weightStr.trim() === '' || isNaN(weight)) {
+                    popError.style.display = 'flex';
+                    popResults.style.display = 'none';
+                    popBreakdown.innerHTML = "Awaiting valid weight input...";
+                    return;
+                }
+
+                popError.style.display = 'none';
+                popResults.style.display = 'block';
+
+                let type = 'base';
+                for (const radio of popTypeRadios) {
+                    if (radio.checked) {
+                        type = radio.value;
+                        break;
+                    }
+                }
+
+                // Calculations
+                let baseWeight = type === 'popcorn-only' ? weight + 10 : weight;
+                let flavor = ((baseWeight / 10) - 1) * 2;
+                let total = baseWeight + flavor;
+
+                // Output Updates
+                resBaseWeight.textContent = `${baseWeight.toFixed(2)} g`;
+                resFlavor.textContent = `${flavor.toFixed(2)} g`;
+                resPopTotal.textContent = `${total.toFixed(2)} g`;
+
+                // Breakdown String
+                let breakdownStr = `[1] Determine Base Weight\n`;
+                if (type === 'popcorn-only') {
+                    breakdownStr += `    Type: Popcorn Only (+10 offset)\n    Base Weight = ${weight} + 10 = ${baseWeight}\n\n`;
+                } else {
+                    breakdownStr += `    Type: Base\n    Base Weight = ${weight}\n\n`;
+                }
+                breakdownStr += `[2] Calculate Flavor\n    Flavor = ((Base Weight / 10) - 1) * 2\n    Flavor = ((${baseWeight} / 10) - 1) * 2\n    Flavor = (${(baseWeight/10).toFixed(2)} - 1) * 2\n    Flavor = ${( (baseWeight/10) - 1 ).toFixed(2)} * 2 = ${flavor.toFixed(2)}\n\n`;
+                breakdownStr += `[3] Calculate Total\n    Total = Base Weight + Flavor\n    Total = ${baseWeight} + ${flavor.toFixed(2)} = ${total.toFixed(2)}`;
+                
+                popBreakdown.innerHTML = breakdownStr;
+            }
+
+            // Event Listeners for Popcorn
+            popWeightInput.addEventListener('input', calculatePopcorn);
+            for (const radio of popTypeRadios) {
+                radio.addEventListener('change', calculatePopcorn);
+            }
+
+            btnResetPop.addEventListener('click', () => {
+                popWeightInput.value = '';
+                popTypeRadios[0].checked = true; // reset to 'base'
+                calculatePopcorn();
+            });
+
+            // Initial Trigger
+            calculatePopcorn();
+
+        });
+    </script>
+</body>
+</html>

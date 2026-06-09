@@ -174,6 +174,34 @@
             <div class="flex flex-col md:flex-row gap-6 overflow-hidden flex-1">
                 <div class="w-full md:w-1/3 flex flex-col gap-5 overflow-y-auto pr-2 custom-scrollbar">
                     
+                    <!-- PERIOD/DATE SETTINGS -->
+                    <div class="bg-darkBg p-5 rounded-2xl border border-gray-800 shadow-subtle relative border-t-4 border-t-tatersYellow">
+                        <h3 class="font-bold mb-4 text-white flex items-center gap-2 uppercase tracking-wide text-xs">
+                            <span class="material-symbols-rounded text-tatersYellow text-[18px]">calendar_month</span> System Period Settings
+                        </h3>
+                        <div class="space-y-4 text-sm">
+                            <div>
+                                <label class="text-gray-500 text-[10px] uppercase font-bold tracking-wider mb-1 block">Month (ex. April, May)</label>
+                                <input type="text" id="sysMonth" placeholder="April" class="w-full bg-cardBg border border-gray-700 focus:border-tatersYellow rounded-xl p-2 text-white outline-none transition">
+                            </div>
+                            <div class="flex gap-3">
+                                <div class="flex-1">
+                                    <label class="text-gray-500 text-[10px] uppercase font-bold tracking-wider mb-1 block">Start Date</label>
+                                    <input type="number" id="sysStart" placeholder="16" class="w-full bg-cardBg border border-gray-700 focus:border-tatersYellow rounded-xl p-2 text-white outline-none transition">
+                                </div>
+                                <div class="flex-1">
+                                    <label class="text-gray-500 text-[10px] uppercase font-bold tracking-wider mb-1 block">End Date</label>
+                                    <input type="number" id="sysEnd" placeholder="30" class="w-full bg-cardBg border border-gray-700 focus:border-tatersYellow rounded-xl p-2 text-white outline-none transition">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-gray-500 text-[10px] uppercase font-bold tracking-wider mb-1 block">Year</label>
+                                <input type="number" id="sysYear" placeholder="2024" class="w-full bg-cardBg border border-gray-700 focus:border-tatersYellow rounded-xl p-2 text-white outline-none transition">
+                            </div>
+                            <button onclick="savePeriodSettings()" class="w-full bg-tatersYellow hover:bg-yellow-600 py-2.5 rounded-xl font-black text-black text-xs shadow-md mt-2 tracking-wide uppercase">Save Period</button>
+                        </div>
+                    </div>
+
                     <!-- BRAND SETTINGS -->
                     <div class="bg-darkBg p-5 rounded-2xl border border-gray-800 shadow-subtle">
                         <h3 class="font-bold mb-4 text-white flex items-center gap-2 uppercase tracking-wide text-xs">
@@ -310,10 +338,10 @@
                 <span class="material-symbols-rounded text-[18px] text-blue-400">desktop_windows</span> <span id="viewToggleText" class="hidden sm:inline">Desktop View</span>
             </button>
 
-            <!-- SINGLE DATE PICKER (Act as Week Start) -->
-            <div class="flex items-center gap-2 bg-darkBg border border-gray-700 px-3 py-2 rounded-xl text-sm shadow-inner">
-                <span class="material-symbols-rounded text-gray-500 text-[18px]">calendar_month</span>
-                <input type="date" id="weekSelector" class="bg-transparent text-gray-200 outline-none font-bold cursor-pointer uppercase tracking-wide text-xs" onchange="generateTables()">
+            <!-- PERIOD DISPLAY BADGE (Replaced the individual date picker) -->
+            <div class="flex items-center gap-2 bg-[#0f1115]/80 border border-gray-700 px-4 py-2 rounded-xl text-sm shadow-inner cursor-default" title="Period is managed by Administrators">
+                <span class="material-symbols-rounded text-tatersYellow text-[18px]">calendar_month</span>
+                <span id="periodDisplay" class="text-tatersYellow font-black uppercase tracking-widest text-xs drop-shadow-md">LOADING...</span>
             </div>
 
             <!-- User Profile Section -->
@@ -412,11 +440,9 @@
         window.currentUser = null;
         window.currentCategory = 'popcorn';
         
-        const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-        const today = new Date();
-        // Snap the initial date selector to the current week's Monday
-        const firstDay = new Date(today.setDate(today.getDate() - (today.getDay() || 7) + 1));
-        document.getElementById('weekSelector').value = firstDay.toISOString().split('T')[0];
+        // Settings for period
+        window.currentPeriod = null; 
+        window.currentGeneratedDateKeys = [];
 
         const schemas = {
             popcorn: { label: '🍿 POPCORN PRODUCTION', title: 'POPCORN PRODUCTION PLAN FORM', titleBg: 'bg-gradient-to-r from-red-800 to-red-600 text-white', shifts: [{name: '10 - 2', class: 'hdr-red'}, {name: '2 - 6', class: 'hdr-red'}, {name: '6 - 10', class: 'hdr-red'}], items: [{id: 'batches', name: '# OF BATCHES', isMain: true, roundInt: true}, {id: 'wt', name: 'TOTAL WT (0.500g)', roundInt: false, isReadonly: true, planOnly: true}] },
@@ -443,6 +469,20 @@
             onValue(ref(db, 'settings/brand'), (snapshot) => {
                 const data = snapshot.val();
                 if(data) window.applyBrandSettings(data.logo, data.favicon);
+            });
+
+            onValue(ref(db, 'settings/period'), (snapshot) => {
+                const data = snapshot.val();
+                if(data) {
+                    window.applyPeriodSettings(data);
+                } else {
+                    // Default fallback if no period is set in db
+                    let d = new Date();
+                    window.applyPeriodSettings({
+                        month: d.toLocaleString('default', { month: 'long' }),
+                        start: 1, end: 15, year: d.getFullYear()
+                    });
+                }
             });
         } catch(e) { console.warn("Local Mode Active."); }
 
@@ -556,107 +596,147 @@
         }
 
         // ==========================================
-        // REAL-TIME LOCAL CALCULATION 
+        // REAL-TIME LOCAL CALCULATION (Grand Total Per Day)
         // ==========================================
-        window.recalcDay = function(dayName) {
+        window.recalcDay = function(dateKey) {
             const schema = schemas[window.currentCategory];
             
             if (window.currentCategory === 'popcorn') {
-                const b = document.getElementById(`inp_plan_${dayName}_batches`);
-                const w = document.getElementById(`inp_plan_${dayName}_wt`);
+                const b = document.getElementById(`inp_plan_${dateKey}_batches`);
+                const w = document.getElementById(`inp_plan_${dateKey}_wt`);
                 if (b && w) w.value = b.value !== "" ? (parseFloat(b.value) * 0.500).toFixed(3).replace(/\.?0+$/, '') : "";
             }
 
             let dists = [];
-            schema.shifts.forEach((_, i) => { dists.push(parseFloat(document.getElementById(`inp_dist_${dayName}_${i}`)?.value) || 0); });
+            schema.shifts.forEach((_, i) => { dists.push(parseFloat(document.getElementById(`inp_dist_${dateKey}_${i}`)?.value) || 0); });
+
+            let dayTotalPlan = 0;
+            let dayTotalUsage = 0;
+            let anyInputExistsForDay = false;
 
             schema.items.forEach(item => {
-                let planInput = document.getElementById(`inp_plan_${dayName}_${item.id}`);
+                let planInput = document.getElementById(`inp_plan_${dateKey}_${item.id}`);
                 let planVal = planInput ? (parseFloat(planInput.value) || 0) : 0; 
                 let totalAct = 0;
                 
                 schema.shifts.forEach((_, i) => {
-                    let subPlanEl = document.getElementById(`calc_subplan_${dayName}_${item.id}_${i}`);
+                    let subPlanEl = document.getElementById(`calc_subplan_${dateKey}_${item.id}_${i}`);
                     if(subPlanEl) {
                         let subCalc = (planVal * dists[i]) / 100;
                         if(subCalc > 0) subPlanEl.innerText = item.roundInt ? Math.round(subCalc) : subCalc.toFixed(3).replace(/\.?0+$/, '');
                         else subPlanEl.innerText = ''; 
                     }
-                    if (!item.planOnly) totalAct += parseFloat(document.getElementById(`inp_act_${dayName}_${item.id}_${i}`)?.value) || 0;
+                    if (!item.planOnly) totalAct += parseFloat(document.getElementById(`inp_act_${dateKey}_${item.id}_${i}`)?.value) || 0;
                 });
 
                 if (!item.planOnly) {
-                    let begVal = parseFloat(document.getElementById(`inp_beg_${dayName}_${item.id}`)?.value) || 0;
-                    let endVal = parseFloat(document.getElementById(`inp_end_${dayName}_${item.id}`)?.value) || 0;
+                    let begVal = parseFloat(document.getElementById(`inp_beg_${dateKey}_${item.id}`)?.value) || 0;
+                    let endVal = parseFloat(document.getElementById(`inp_end_${dateKey}_${item.id}`)?.value) || 0;
                     
                     const usage = begVal + totalAct - endVal;
-                    const variance = planVal - usage;
-                    const pctVar = planVal !== 0 ? Math.round((variance / planVal) * 100) : 0;
-
-                    let usgEl = document.getElementById(`calc_usg_${dayName}_${item.id}`);
-                    let varEl = document.getElementById(`calc_var_${dayName}_${item.id}`);
-                    let pctEl = document.getElementById(`calc_pct_${dayName}_${item.id}`);
                     
-                    let anyInputExists = planVal > 0 || begVal > 0 || totalAct > 0 || endVal > 0;
-
-                    if(usgEl) usgEl.innerText = (usage !== 0 || anyInputExists) ? usage.toFixed(2) : '';
-                    if(varEl && pctEl) {
-                        if (anyInputExists) {
-                            varEl.innerText = variance.toFixed(2);
-                            pctEl.innerText = `${pctVar}%`;
-                            if(variance > 0) {
-                                varEl.className = 'bg-[#1a2e1d] font-black variance-good border-l border-[#2e5235]';
-                                pctEl.className = 'bg-[#1a2e1d] font-black variance-good';
-                            } else if(variance < 0) {
-                                varEl.className = 'bg-[#331818] font-black variance-bad border-l border-[#5a2a2a]';
-                                pctEl.className = 'bg-[#331818] font-black variance-bad';
-                            } else {
-                                varEl.className = 'bg-[#1a1d24] font-black text-gray-400 border-l border-gray-700';
-                                pctEl.className = 'bg-[#1a1d24] font-black text-gray-400';
-                            }
-                        } else {
-                            varEl.innerText = ''; pctEl.innerText = '';
-                            varEl.className = 'bg-[#1a1d24] font-bold'; pctEl.className = 'bg-[#1a1d24] font-bold';
-                        }
+                    dayTotalPlan += planVal;
+                    dayTotalUsage += usage;
+                    
+                    if (planVal > 0 || begVal > 0 || totalAct > 0 || endVal > 0) {
+                        anyInputExistsForDay = true;
                     }
                 }
             });
+
+            const dayTotalVariance = dayTotalPlan - dayTotalUsage;
+            const dayTotalPctVar = dayTotalPlan !== 0 ? Math.round((dayTotalVariance / dayTotalPlan) * 100) : 0;
+
+            let usgEl = document.getElementById(`calc_usg_${dateKey}`);
+            let varEl = document.getElementById(`calc_var_${dateKey}`);
+            let pctEl = document.getElementById(`calc_pct_${dateKey}`);
+
+            if (usgEl) {
+                if (anyInputExistsForDay || dayTotalUsage !== 0) {
+                    usgEl.innerText = Number.isInteger(dayTotalUsage) ? dayTotalUsage : dayTotalUsage.toFixed(2);
+                } else {
+                    usgEl.innerText = '';
+                }
+            }
+            
+            if (varEl && pctEl) {
+                let baseClasses = `bg-[#14181f] font-black text-2xl lg:text-3xl border-l-[1px] border-gray-700 transition-colors duration-300 align-middle `;
+                
+                if (anyInputExistsForDay) {
+                    varEl.innerText = Number.isInteger(dayTotalVariance) ? dayTotalVariance : dayTotalVariance.toFixed(2);
+                    pctEl.innerText = `${dayTotalPctVar}%`;
+                    
+                    if(dayTotalVariance > 0) {
+                        varEl.className = baseClasses + 'bg-[#1a2e1d] text-[#4ade80] shadow-[inset_0_0_20px_rgba(74,222,128,0.1)] border-l-[#2e5235]';
+                        pctEl.className = baseClasses + 'bg-[#1a2e1d] text-[#4ade80] shadow-[inset_0_0_20px_rgba(74,222,128,0.1)]';
+                    } else if(dayTotalVariance < 0) {
+                        varEl.className = baseClasses + 'bg-[#331818] text-[#f87171] shadow-[inset_0_0_20px_rgba(248,113,113,0.1)] border-l-[#5a2a2a]';
+                        pctEl.className = baseClasses + 'bg-[#331818] text-[#f87171] shadow-[inset_0_0_20px_rgba(248,113,113,0.1)]';
+                    } else {
+                        varEl.className = baseClasses + 'text-gray-400';
+                        pctEl.className = baseClasses + 'text-gray-400';
+                    }
+                } else {
+                    varEl.innerText = ''; 
+                    pctEl.innerText = '';
+                    varEl.className = baseClasses; 
+                    pctEl.className = baseClasses;
+                }
+            }
         };
 
         // ==========================================
-        // 7-DAY WEEK TABLE GENERATION
+        // DYNAMIC TABLE GENERATION based on Period
         // ==========================================
         window.generateTables = function() {
+            if (!window.currentPeriod) return; // Wait until period is loaded
+
             const schema = schemas[window.currentCategory];
             const container = document.getElementById('tableContainer');
             container.innerHTML = ''; // Clear container
+            window.currentGeneratedDateKeys = []; // Reset tracked keys
             
-            const selectedDate = new Date(document.getElementById('weekSelector').value);
+            let period = window.currentPeriod;
+            let startDate = new Date(`${period.month} ${period.start}, ${period.year}`);
+            let endDate = new Date(`${period.month} ${period.end}, ${period.year}`);
+
+            // If parsed invalid, fallback
+            if (isNaN(startDate)) startDate = new Date();
+            if (isNaN(endDate)) endDate = new Date(startDate);
+            // Handle cross-month logic safely if End Date number is smaller than Start
+            if (endDate < startDate) endDate.setMonth(endDate.getMonth() + 1);
+
+            let dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            let currentDate = new Date(startDate);
             
-            daysOfWeek.forEach((dayName, index) => {
-                const currentDate = new Date(selectedDate);
-                currentDate.setDate(selectedDate.getDate() + index);
+            while (currentDate <= endDate) {
+                let dayName = dayNames[currentDate.getDay()];
+                let dateNum = currentDate.getDate();
+                let monthName = currentDate.toLocaleString('default', { month: 'long' });
                 
+                // Unique Key Identifier for Database (e.g. "April_16")
+                let dateKey = `${monthName}_${dateNum}`;
+                window.currentGeneratedDateKeys.push(dateKey);
+
                 // Formatted as MM/DD/YYYY
-                const dateStr = `${(currentDate.getMonth()+1).toString().padStart(2, '0')}/${currentDate.getDate().toString().padStart(2, '0')}/${currentDate.getFullYear()}`;
-                
+                const dateStr = `${(currentDate.getMonth()+1).toString().padStart(2, '0')}/${dateNum.toString().padStart(2, '0')}/${currentDate.getFullYear()}`;
                 const itemHeaderText = window.currentCategory === 'popcorn' ? '' : 'ITEM';
 
                 let html = `
-                <div class="bg-cardBg border border-gray-700 shadow-xl overflow-hidden rounded-2xl w-full day-container" id="container_${dayName}">
+                <div class="bg-cardBg border border-gray-700 shadow-xl overflow-hidden rounded-2xl w-full day-container" id="container_${dateKey}">
                     <div class="${schema.titleBg} text-center py-3 font-black text-sm lg:text-xl tracking-widest border-b border-gray-800 whitespace-nowrap drop-shadow-md shadow-inner">${schema.title}</div>
                     <div class="overflow-x-auto custom-scrollbar bg-darkBg">
-                        <table class="prod-table min-w-[1000px] w-full text-xs lg:text-sm relative" id="table_${dayName}">
+                        <table class="prod-table min-w-[1000px] w-full text-xs lg:text-sm relative" id="table_${dateKey}">
                             <thead>
                                 <tr>
                                     <th class="hdr-dark w-28 lg:w-40 sticky-col-header text-gray-400">DATE:</th>
                                     <th class="hdr-dark text-lg lg:text-2xl font-black tracking-widest text-left pl-5 text-blue-300" colspan="${schema.shifts.length * 2 + 2}">
-                                        ${dateStr}
+                                        ${dateStr} <span class="text-sm lg:text-lg text-gray-500 font-bold ml-2 uppercase">(${dayName})</span>
                                     </th>
                                     <th class="hdr-dark w-20 lg:w-28 text-[10px] lg:text-[11px] leading-tight text-gray-400 font-extrabold uppercase bg-[#14181f]">Ending Balance</th>
-                                    <th class="hdr-dark w-20 lg:w-28 text-[10px] lg:text-[11px] leading-tight text-gray-400 font-extrabold uppercase bg-[#14181f]">Total Usage</th>
-                                    <th class="hdr-dark w-20 lg:w-28 text-[10px] lg:text-[11px] leading-tight text-gray-400 font-extrabold uppercase bg-[#14181f]">Variance</th>
-                                    <th class="hdr-dark w-20 lg:w-28 text-[10px] lg:text-[11px] leading-tight text-gray-400 font-extrabold uppercase bg-[#14181f]">% Variance</th>
+                                    <th class="hdr-dark w-24 lg:w-32 text-[10px] lg:text-[11px] leading-tight text-gray-400 font-extrabold uppercase bg-[#14181f]">Total Usage</th>
+                                    <th class="hdr-dark w-24 lg:w-32 text-[10px] lg:text-[11px] leading-tight text-gray-400 font-extrabold uppercase bg-[#14181f]">Variance</th>
+                                    <th class="hdr-dark w-24 lg:w-32 text-[10px] lg:text-[11px] leading-tight text-gray-400 font-extrabold uppercase bg-[#14181f]">% Variance</th>
                                 </tr>
                                 <tr>
                                     <th class="bg-[#1e293b] text-gray-300 border-r-0 sticky-col-header">${itemHeaderText}</th>
@@ -671,9 +751,9 @@
                                     ${schema.shifts.map((s, i) => `
                                         <th colspan="2" class="bg-[#0f172a]">
                                             <div class="input-wrapper">
-                                                <input type="number" id="inp_dist_${dayName}_${i}" class="cell-input text-tatersOrange text-[15px] font-black" placeholder="0%" 
-                                                ${canEdit('dist') ? '' : 'disabled'} data-day="${dayName}" data-type="dist" data-index="${i}" oninput="recalcDay('${dayName}')">
-                                                <img id="av_dist_${dayName}_${i}" class="avatar-tiny hidden shadow-sm">
+                                                <input type="number" id="inp_dist_${dateKey}_${i}" class="cell-input text-tatersOrange text-[15px] font-black" placeholder="0%" 
+                                                ${canEdit('dist') ? '' : 'disabled'} data-day="${dateKey}" data-type="dist" data-index="${i}" oninput="recalcDay('${dateKey}')">
+                                                <img id="av_dist_${dateKey}_${i}" class="avatar-tiny hidden shadow-sm">
                                             </div>
                                         </th>
                                     `).join('')}
@@ -687,15 +767,15 @@
                             <tbody>
                 `;
 
-                schema.items.forEach(item => {
+                schema.items.forEach((item, index) => {
                     html += `<tr class="hover:bg-gray-800/60 transition-colors group">
                         <td class="font-extrabold text-left px-5 py-3 bg-[#1e293b] border-r-0 whitespace-nowrap text-xs text-gray-200 sticky-col group-hover:bg-[#253247] shadow-[2px_0_5px_rgba(0,0,0,0.2)]">${item.name}</td>
                         
                         <td class="${item.isMain ? 'bg-green-900/20' : 'bg-[#1a1d24]'} border-l-0 border-r-0 font-bold">
                             <div class="input-wrapper">
-                                <input type="number" id="inp_plan_${dayName}_${item.id}" class="cell-input text-base ${item.isReadonly ? 'text-tatersOrange bg-transparent' : 'text-tatersGreen bg-[#0f1115]/50'}" 
-                                ${canEdit('plan') ? (item.isReadonly ? 'readonly tabindex="-1"' : '') : 'disabled'} data-day="${dayName}" data-item="${item.id}" data-type="plan" oninput="recalcDay('${dayName}')">
-                                <img id="av_plan_${dayName}_${item.id}" class="avatar-tiny hidden">
+                                <input type="number" id="inp_plan_${dateKey}_${item.id}" class="cell-input text-base ${item.isReadonly ? 'text-tatersOrange bg-transparent' : 'text-tatersGreen bg-[#0f1115]/50'}" 
+                                ${canEdit('plan') ? (item.isReadonly ? 'readonly tabindex="-1"' : '') : 'disabled'} data-day="${dateKey}" data-item="${item.id}" data-type="plan" oninput="recalcDay('${dateKey}')">
+                                <img id="av_plan_${dateKey}_${item.id}" class="avatar-tiny hidden">
                              </div>
                         </td>`;
                         
@@ -706,67 +786,79 @@
                         html += `
                         <td class="bg-[#1a1d24] border-l-0 relative">
                             <div class="input-wrapper">
-                                <input type="number" id="inp_beg_${dayName}_${item.id}" class="cell-input text-blue-300 bg-[#0f1115]/50 text-base" 
-                                ${canEdit('beg') ? '' : 'disabled'} data-day="${dayName}" data-item="${item.id}" data-type="beg" oninput="recalcDay('${dayName}')">
-                                <img id="av_beg_${dayName}_${item.id}" class="avatar-tiny hidden">
+                                <input type="number" id="inp_beg_${dateKey}_${item.id}" class="cell-input text-blue-300 bg-[#0f1115]/50 text-base" 
+                                ${canEdit('beg') ? '' : 'disabled'} data-day="${dateKey}" data-item="${item.id}" data-type="beg" oninput="recalcDay('${dateKey}')">
+                                <img id="av_beg_${dateKey}_${item.id}" class="avatar-tiny hidden">
                             </div>
                         </td>`;
                     }
                     
                     // SHIFTS
                     schema.shifts.forEach((_, i) => {
-                        html += `<td class="bg-[#14181f]/80 text-center border-l border-gray-700/50"><span id="calc_subplan_${dayName}_${item.id}_${i}" class="cell-computed text-[13px]"></span></td>`;
+                        html += `<td class="bg-[#14181f]/80 text-center border-l border-gray-700/50"><span id="calc_subplan_${dateKey}_${item.id}_${i}" class="cell-computed text-[13px]"></span></td>`;
                         if (item.planOnly) {
                             html += `<td class="bg-[#1a1d24]"></td>`;
                         } else {
                             html += `
                             <td class="bg-[#1a1d24] relative">
                                 <div class="input-wrapper">
-                                    <input type="number" id="inp_act_${dayName}_${item.id}_${i}" class="cell-input text-white bg-[#0f1115]/50 text-base" 
-                                    ${canEdit('act') ? '' : 'disabled'} data-day="${dayName}" data-item="${item.id}" data-type="act" data-index="${i}" oninput="recalcDay('${dayName}')">
-                                    <img id="av_act_${dayName}_${item.id}_${i}" class="avatar-tiny hidden">
+                                    <input type="number" id="inp_act_${dateKey}_${item.id}_${i}" class="cell-input text-white bg-[#0f1115]/50 text-base" 
+                                    ${canEdit('act') ? '' : 'disabled'} data-day="${dateKey}" data-item="${item.id}" data-type="act" data-index="${i}" oninput="recalcDay('${dateKey}')">
+                                    <img id="av_act_${dateKey}_${item.id}_${i}" class="avatar-tiny hidden">
                                 </div>
                             </td>`;
                         }
                     });
                     
-                    // END BAL, USG, VAR, PCT
+                    // END BAL
                     if (item.planOnly) {
-                        html += `<td class="bg-[#14181f] border-l-[3px] border-gray-700" colspan="4"></td></tr>`;
+                        html += `<td class="bg-[#14181f] border-l-[3px] border-gray-700"></td>`;
                     } else {
                         html += `
                             <td class="bg-[#1a1d24] relative border-l-[3px] border-gray-700">
                                 <div class="input-wrapper">
-                                    <input type="number" id="inp_end_${dayName}_${item.id}" class="cell-input text-blue-300 bg-[#0f1115]/50 text-base" 
-                                    ${canEdit('end') ? '' : 'disabled'} data-day="${dayName}" data-item="${item.id}" data-type="end" oninput="recalcDay('${dayName}')">
-                                    <img id="av_end_${dayName}_${item.id}" class="avatar-tiny hidden">
+                                    <input type="number" id="inp_end_${dateKey}_${item.id}" class="cell-input text-blue-300 bg-[#0f1115]/50 text-base" 
+                                    ${canEdit('end') ? '' : 'disabled'} data-day="${dateKey}" data-item="${item.id}" data-type="end" oninput="recalcDay('${dateKey}')">
+                                    <img id="av_end_${dateKey}_${item.id}" class="avatar-tiny hidden">
                                 </div>
-                            </td>
-                            <td class="bg-[#14181f] font-bold text-gray-300 text-base" id="calc_usg_${dayName}_${item.id}"></td>
-                            <td class="bg-[#14181f] font-bold text-base" id="calc_var_${dayName}_${item.id}"></td>
-                            <td class="bg-[#14181f] font-bold text-base" id="calc_pct_${dayName}_${item.id}"></td>
-                        </tr>`;
+                            </td>`;
                     }
+                    
+                    // USG, VAR, PCT (Merged Grand Total Columns - Rendered only once per Day)
+                    if (index === 0) {
+                        html += `
+                            <td rowspan="${schema.items.length}" class="bg-[#14181f] font-black text-2xl lg:text-3xl text-gray-300 border-l-[3px] border-gray-700 align-middle" id="calc_usg_${dateKey}"></td>
+                            <td rowspan="${schema.items.length}" class="bg-[#14181f] font-black text-2xl lg:text-3xl border-l-[1px] border-gray-700 align-middle transition-colors duration-300" id="calc_var_${dateKey}"></td>
+                            <td rowspan="${schema.items.length}" class="bg-[#14181f] font-black text-2xl lg:text-3xl border-l-[1px] border-gray-700 align-middle transition-colors duration-300" id="calc_pct_${dateKey}"></td>
+                        `;
+                    }
+                    
+                    html += `</tr>`;
                 });
+                
                 html += `</tbody></table></div></div>`;
                 container.innerHTML += html; // Append each day
-            });
+                
+                // Next day
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
             
             document.querySelectorAll('.cell-input').forEach(input => { input.addEventListener('blur', handleInputSave); });
             fetchFirebaseData();
         };
 
         window.handleInputSave = function(e) {
-            if(!window.currentUser) return;
+            if(!window.currentUser || !window.currentPeriod) return;
             const input = e.target;
             const val = input.value;
             let fireVal = val === "" ? null : parseFloat(val);
 
-            const { day, type, item, index } = input.dataset;
-            const weekId = document.getElementById('weekSelector').value;
+            const { day: dateKey, type, item, index } = input.dataset;
             
-            // Path structure remains isolated per day based on the selected Week date
-            let dbPath = `plans/${weekId}/${window.currentCategory}/${day}`;
+            // Build a unique Period ID for Database separation
+            const periodId = `${window.currentPeriod.month}_${window.currentPeriod.start}_${window.currentPeriod.end}_${window.currentPeriod.year}`;
+            
+            let dbPath = `plans/${periodId}/${window.currentCategory}/${dateKey}`;
             let updates = {};
 
             if(type === 'dist') {
@@ -783,47 +875,49 @@
                     updates[`items/wt/${type}${suffix}_by`] = fireVal !== null ? window.currentUser.avatar : null;
                 }
             }
-            try { update(ref(db, dbPath), updates); logAudit(`Updated ${schemas[window.currentCategory].label} > ${day} > ${item || 'Dist'} > ${type} = ${val}`); } catch(err) {}
+            try { update(ref(db, dbPath), updates); logAudit(`Updated ${schemas[window.currentCategory].label} > ${dateKey} > ${item || 'Dist'} > ${type} = ${val}`); } catch(err) {}
         };
 
         function fetchFirebaseData() {
-            const weekId = document.getElementById('weekSelector').value;
+            if (!window.currentPeriod) return;
+            const periodId = `${window.currentPeriod.month}_${window.currentPeriod.start}_${window.currentPeriod.end}_${window.currentPeriod.year}`;
+            
             try {
-                onValue(ref(db, `plans/${weekId}/${window.currentCategory}`), (snapshot) => {
+                onValue(ref(db, `plans/${periodId}/${window.currentCategory}`), (snapshot) => {
                     const data = snapshot.val() || {};
                     
-                    daysOfWeek.forEach(day => {
-                        const dayData = data[day] || {};
+                    window.currentGeneratedDateKeys.forEach(dateKey => {
+                        const dayData = data[dateKey] || {};
                         const schema = schemas[window.currentCategory];
 
                         schema.shifts.forEach((_, i) => {
-                            const distEl = document.getElementById(`inp_dist_${day}_${i}`);
+                            const distEl = document.getElementById(`inp_dist_${dateKey}_${i}`);
                             if(distEl && dayData[`dist_${i}`] !== undefined && document.activeElement !== distEl) distEl.value = dayData[`dist_${i}`];
-                            setAvatar(`av_dist_${day}_${i}`, dayData[`dist_${i}_by`]);
+                            setAvatar(`av_dist_${dateKey}_${i}`, dayData[`dist_${i}_by`]);
                         });
 
                         schema.items.forEach(item => {
                             const itemData = (dayData.items && dayData.items[item.id]) ? dayData.items[item.id] : {};
                             
-                            const planEl = document.getElementById(`inp_plan_${day}_${item.id}`);
+                            const planEl = document.getElementById(`inp_plan_${dateKey}_${item.id}`);
                             if(planEl && itemData.plan !== undefined && document.activeElement !== planEl) planEl.value = itemData.plan;
-                            setAvatar(`av_plan_${day}_${item.id}`, itemData.plan_by);
+                            setAvatar(`av_plan_${dateKey}_${item.id}`, itemData.plan_by);
 
                             if (!item.planOnly) {
                                 ['beg', 'end'].forEach(type => {
-                                    const el = document.getElementById(`inp_${type}_${day}_${item.id}`);
+                                    const el = document.getElementById(`inp_${type}_${dateKey}_${item.id}`);
                                     if(el && itemData[type] !== undefined && document.activeElement !== el) el.value = itemData[type];
-                                    setAvatar(`av_${type}_${day}_${item.id}`, itemData[`${type}_by`]);
+                                    setAvatar(`av_${type}_${dateKey}_${item.id}`, itemData[`${type}_by`]);
                                 });
 
                                 schema.shifts.forEach((_, i) => {
-                                    const actEl = document.getElementById(`inp_act_${day}_${item.id}_${i}`);
+                                    const actEl = document.getElementById(`inp_act_${dateKey}_${item.id}_${i}`);
                                     if(actEl && itemData[`act_${i}`] !== undefined && document.activeElement !== actEl) actEl.value = itemData[`act_${i}`];
-                                    setAvatar(`av_act_${day}_${item.id}_${i}`, itemData[`act_${i}_by`]);
+                                    setAvatar(`av_act_${dateKey}_${item.id}_${i}`, itemData[`act_${i}_by`]);
                                 });
                             }
                         });
-                        window.recalcDay(day);
+                        window.recalcDay(dateKey);
                     });
                 });
             } catch(e) {}
@@ -883,6 +977,35 @@
         window.openAdminModal = function() { document.getElementById('adminModal').classList.remove('hidden'); renderUserList(); };
         window.closeAdminModal = function() { document.getElementById('adminModal').classList.add('hidden'); clearUserForm(); };
         
+        window.savePeriodSettings = function() {
+            const month = document.getElementById('sysMonth').value.trim() || 'April';
+            const start = document.getElementById('sysStart').value || 1;
+            const end = document.getElementById('sysEnd').value || 15;
+            const year = document.getElementById('sysYear').value || new Date().getFullYear();
+            
+            try { set(ref(db, 'settings/period'), { month, start, end, year }); } catch(e){}
+            window.applyPeriodSettings({ month, start, end, year });
+            alert("Period Saved Successfully!");
+        };
+
+        window.applyPeriodSettings = function(data) {
+            if(data) {
+                window.currentPeriod = data;
+                
+                // Update Admin fields
+                document.getElementById('sysMonth').value = data.month;
+                document.getElementById('sysStart').value = data.start;
+                document.getElementById('sysEnd').value = data.end;
+                document.getElementById('sysYear').value = data.year;
+                
+                // Update Main Header Badge
+                document.getElementById('periodDisplay').innerText = `${data.month} ${data.start} - ${data.end}, ${data.year}`;
+                
+                // Re-render whole tables 
+                window.generateTables();
+            }
+        };
+
         window.saveBrandSettings = function() {
             const logo = document.getElementById('brandLogoUrl').value;
             const fav = document.getElementById('brandFaviconUrl').value;
@@ -987,7 +1110,7 @@
                     body { font-family: 'Nunito', sans-serif; background: #fff; color: #000; padding: 20px; font-size: 14px; }
                     .day-container { margin-bottom: 30px; page-break-inside: avoid; }
                     .prod-table { width: 100%; border-collapse: collapse; text-align: center; border: 2px solid #000; margin-top: 10px; }
-                    .prod-table th, .prod-table td { border: 1px solid #000; padding: 8px; }
+                    .prod-table th, .prod-table td { border: 1px solid #000; padding: 8px; vertical-align: middle; }
                     .prod-table th { font-weight: bold; text-transform: uppercase; font-size: 12px; }
                     .hdr-red, .hdr-yellow, .hdr-green, .hdr-dark, th[class*="bg-"], td[class*="bg-"] { 
                         background-color: transparent !important; color: #000 !important; border: 1px solid #000; 
@@ -1013,8 +1136,7 @@
             setTimeout(() => { printWindow.print(); }, 500);
         };
 
-        // Initialize Table
-        window.generateTables();
+        // Table generation will be initialized after firebase loads settings
     </script>
 </body>
 </html>

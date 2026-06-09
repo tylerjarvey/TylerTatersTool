@@ -596,7 +596,7 @@
         }
 
         // ==========================================
-        // REAL-TIME LOCAL CALCULATION (Grand Total Per Day)
+        // REAL-TIME LOCAL CALCULATION 
         // ==========================================
         window.recalcDay = function(dateKey) {
             const schema = schemas[window.currentCategory];
@@ -609,10 +609,6 @@
 
             let dists = [];
             schema.shifts.forEach((_, i) => { dists.push(parseFloat(document.getElementById(`inp_dist_${dateKey}_${i}`)?.value) || 0); });
-
-            let dayTotalPlan = 0;
-            let dayTotalUsage = 0;
-            let anyInputExistsForDay = false;
 
             schema.items.forEach(item => {
                 let planInput = document.getElementById(`inp_plan_${dateKey}_${item.id}`);
@@ -634,55 +630,37 @@
                     let endVal = parseFloat(document.getElementById(`inp_end_${dateKey}_${item.id}`)?.value) || 0;
                     
                     const usage = begVal + totalAct - endVal;
+                    const variance = planVal - usage;
+                    const pctVar = planVal !== 0 ? Math.round((variance / planVal) * 100) : 0;
+
+                    let usgEl = document.getElementById(`calc_usg_${dateKey}_${item.id}`);
+                    let varEl = document.getElementById(`calc_var_${dateKey}_${item.id}`);
+                    let pctEl = document.getElementById(`calc_pct_${dateKey}_${item.id}`);
                     
-                    dayTotalPlan += planVal;
-                    dayTotalUsage += usage;
-                    
-                    if (planVal > 0 || begVal > 0 || totalAct > 0 || endVal > 0) {
-                        anyInputExistsForDay = true;
+                    let anyInputExists = planVal > 0 || begVal > 0 || totalAct > 0 || endVal > 0;
+
+                    if(usgEl) usgEl.innerText = (usage !== 0 || anyInputExists) ? usage.toFixed(2) : '';
+                    if(varEl && pctEl) {
+                        if (anyInputExists) {
+                            varEl.innerText = variance.toFixed(2);
+                            pctEl.innerText = `${pctVar}%`;
+                            if(variance > 0) {
+                                varEl.className = 'bg-[#1a2e1d] font-black variance-good border-l border-[#2e5235]';
+                                pctEl.className = 'bg-[#1a2e1d] font-black variance-good';
+                            } else if(variance < 0) {
+                                varEl.className = 'bg-[#331818] font-black variance-bad border-l border-[#5a2a2a]';
+                                pctEl.className = 'bg-[#331818] font-black variance-bad';
+                            } else {
+                                varEl.className = 'bg-[#1a1d24] font-black text-gray-400 border-l border-gray-700';
+                                pctEl.className = 'bg-[#1a1d24] font-black text-gray-400';
+                            }
+                        } else {
+                            varEl.innerText = ''; pctEl.innerText = '';
+                            varEl.className = 'bg-[#1a1d24] font-bold'; pctEl.className = 'bg-[#1a1d24] font-bold';
+                        }
                     }
                 }
             });
-
-            const dayTotalVariance = dayTotalPlan - dayTotalUsage;
-            const dayTotalPctVar = dayTotalPlan !== 0 ? Math.round((dayTotalVariance / dayTotalPlan) * 100) : 0;
-
-            let usgEl = document.getElementById(`calc_usg_${dateKey}`);
-            let varEl = document.getElementById(`calc_var_${dateKey}`);
-            let pctEl = document.getElementById(`calc_pct_${dateKey}`);
-
-            if (usgEl) {
-                if (anyInputExistsForDay || dayTotalUsage !== 0) {
-                    usgEl.innerText = Number.isInteger(dayTotalUsage) ? dayTotalUsage : dayTotalUsage.toFixed(2);
-                } else {
-                    usgEl.innerText = '';
-                }
-            }
-            
-            if (varEl && pctEl) {
-                let baseClasses = `bg-[#14181f] font-black text-2xl lg:text-3xl border-l-[1px] border-gray-700 transition-colors duration-300 align-middle `;
-                
-                if (anyInputExistsForDay) {
-                    varEl.innerText = Number.isInteger(dayTotalVariance) ? dayTotalVariance : dayTotalVariance.toFixed(2);
-                    pctEl.innerText = `${dayTotalPctVar}%`;
-                    
-                    if(dayTotalVariance > 0) {
-                        varEl.className = baseClasses + 'bg-[#1a2e1d] text-[#4ade80] shadow-[inset_0_0_20px_rgba(74,222,128,0.1)] border-l-[#2e5235]';
-                        pctEl.className = baseClasses + 'bg-[#1a2e1d] text-[#4ade80] shadow-[inset_0_0_20px_rgba(74,222,128,0.1)]';
-                    } else if(dayTotalVariance < 0) {
-                        varEl.className = baseClasses + 'bg-[#331818] text-[#f87171] shadow-[inset_0_0_20px_rgba(248,113,113,0.1)] border-l-[#5a2a2a]';
-                        pctEl.className = baseClasses + 'bg-[#331818] text-[#f87171] shadow-[inset_0_0_20px_rgba(248,113,113,0.1)]';
-                    } else {
-                        varEl.className = baseClasses + 'text-gray-400';
-                        pctEl.className = baseClasses + 'text-gray-400';
-                    }
-                } else {
-                    varEl.innerText = ''; 
-                    pctEl.innerText = '';
-                    varEl.className = baseClasses; 
-                    pctEl.className = baseClasses;
-                }
-            }
         };
 
         // ==========================================
@@ -734,9 +712,9 @@
                                         ${dateStr} <span class="text-sm lg:text-lg text-gray-500 font-bold ml-2 uppercase">(${dayName})</span>
                                     </th>
                                     <th class="hdr-dark w-20 lg:w-28 text-[10px] lg:text-[11px] leading-tight text-gray-400 font-extrabold uppercase bg-[#14181f]">Ending Balance</th>
-                                    <th class="hdr-dark w-24 lg:w-32 text-[10px] lg:text-[11px] leading-tight text-gray-400 font-extrabold uppercase bg-[#14181f]">Total Usage</th>
-                                    <th class="hdr-dark w-24 lg:w-32 text-[10px] lg:text-[11px] leading-tight text-gray-400 font-extrabold uppercase bg-[#14181f]">Variance</th>
-                                    <th class="hdr-dark w-24 lg:w-32 text-[10px] lg:text-[11px] leading-tight text-gray-400 font-extrabold uppercase bg-[#14181f]">% Variance</th>
+                                    <th class="hdr-dark w-20 lg:w-28 text-[10px] lg:text-[11px] leading-tight text-gray-400 font-extrabold uppercase bg-[#14181f]">Total Usage</th>
+                                    <th class="hdr-dark w-20 lg:w-28 text-[10px] lg:text-[11px] leading-tight text-gray-400 font-extrabold uppercase bg-[#14181f]">Variance</th>
+                                    <th class="hdr-dark w-20 lg:w-28 text-[10px] lg:text-[11px] leading-tight text-gray-400 font-extrabold uppercase bg-[#14181f]">% Variance</th>
                                 </tr>
                                 <tr>
                                     <th class="bg-[#1e293b] text-gray-300 border-r-0 sticky-col-header">${itemHeaderText}</th>
@@ -767,7 +745,7 @@
                             <tbody>
                 `;
 
-                schema.items.forEach((item, index) => {
+                schema.items.forEach(item => {
                     html += `<tr class="hover:bg-gray-800/60 transition-colors group">
                         <td class="font-extrabold text-left px-5 py-3 bg-[#1e293b] border-r-0 whitespace-nowrap text-xs text-gray-200 sticky-col group-hover:bg-[#253247] shadow-[2px_0_5px_rgba(0,0,0,0.2)]">${item.name}</td>
                         
@@ -810,9 +788,9 @@
                         }
                     });
                     
-                    // END BAL
+                    // END BAL, USG, VAR, PCT
                     if (item.planOnly) {
-                        html += `<td class="bg-[#14181f] border-l-[3px] border-gray-700"></td>`;
+                        html += `<td class="bg-[#14181f] border-l-[3px] border-gray-700" colspan="4"></td></tr>`;
                     } else {
                         html += `
                             <td class="bg-[#1a1d24] relative border-l-[3px] border-gray-700">
@@ -821,21 +799,13 @@
                                     ${canEdit('end') ? '' : 'disabled'} data-day="${dateKey}" data-item="${item.id}" data-type="end" oninput="recalcDay('${dateKey}')">
                                     <img id="av_end_${dateKey}_${item.id}" class="avatar-tiny hidden">
                                 </div>
-                            </td>`;
+                            </td>
+                            <td class="bg-[#14181f] font-bold text-gray-300 text-base" id="calc_usg_${dateKey}_${item.id}"></td>
+                            <td class="bg-[#14181f] font-bold text-base" id="calc_var_${dateKey}_${item.id}"></td>
+                            <td class="bg-[#14181f] font-bold text-base" id="calc_pct_${dateKey}_${item.id}"></td>
+                        </tr>`;
                     }
-                    
-                    // USG, VAR, PCT (Merged Grand Total Columns - Rendered only once per Day)
-                    if (index === 0) {
-                        html += `
-                            <td rowspan="${schema.items.length}" class="bg-[#14181f] font-black text-2xl lg:text-3xl text-gray-300 border-l-[3px] border-gray-700 align-middle" id="calc_usg_${dateKey}"></td>
-                            <td rowspan="${schema.items.length}" class="bg-[#14181f] font-black text-2xl lg:text-3xl border-l-[1px] border-gray-700 align-middle transition-colors duration-300" id="calc_var_${dateKey}"></td>
-                            <td rowspan="${schema.items.length}" class="bg-[#14181f] font-black text-2xl lg:text-3xl border-l-[1px] border-gray-700 align-middle transition-colors duration-300" id="calc_pct_${dateKey}"></td>
-                        `;
-                    }
-                    
-                    html += `</tr>`;
                 });
-                
                 html += `</tbody></table></div></div>`;
                 container.innerHTML += html; // Append each day
                 
@@ -1110,7 +1080,7 @@
                     body { font-family: 'Nunito', sans-serif; background: #fff; color: #000; padding: 20px; font-size: 14px; }
                     .day-container { margin-bottom: 30px; page-break-inside: avoid; }
                     .prod-table { width: 100%; border-collapse: collapse; text-align: center; border: 2px solid #000; margin-top: 10px; }
-                    .prod-table th, .prod-table td { border: 1px solid #000; padding: 8px; vertical-align: middle; }
+                    .prod-table th, .prod-table td { border: 1px solid #000; padding: 8px; }
                     .prod-table th { font-weight: bold; text-transform: uppercase; font-size: 12px; }
                     .hdr-red, .hdr-yellow, .hdr-green, .hdr-dark, th[class*="bg-"], td[class*="bg-"] { 
                         background-color: transparent !important; color: #000 !important; border: 1px solid #000; 

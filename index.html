@@ -11,8 +11,8 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Material Symbols (Icons) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     
     <!-- Google Fonts: Nunito -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,283 +25,348 @@
                 extend: {
                     fontFamily: { sans: ['Nunito', 'sans-serif'], },
                     colors: {
-                        darkBg: '#121212',
-                        cardBg: '#1e1e1e',
-                        tatersRed: '#d32f2f',
-                        tatersOrange: '#f57c00',
-                        tatersYellow: '#fbc02d',
-                        tatersGreen: '#388e3c'
+                        darkBg: '#0f1115',
+                        cardBg: '#1a1d24',
+                        tatersRed: '#e53935',
+                        tatersOrange: '#fb8c00',
+                        tatersYellow: '#fdd835',
+                        tatersGreen: '#43a047'
+                    },
+                    boxShadow: {
+                        'glow': '0 0 15px rgba(229, 57, 53, 0.4)',
+                        'subtle': '0 4px 20px rgba(0, 0, 0, 0.5)'
                     }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #121212; color: #e0e0e0; font-family: 'Nunito', sans-serif; overflow-x: hidden; }
+        body { 
+            background: linear-gradient(135deg, #0f1115 0%, #000000 100%);
+            color: #e2e8f0; 
+            font-family: 'Nunito', sans-serif; 
+            overflow-x: hidden; 
+        }
         
-        .prod-table { width: 100%; border-collapse: collapse; text-align: center; }
-        .prod-table th, .prod-table td { border: 1px solid #404040; padding: 4px; }
-        .prod-table th { background-color: #2a2a2a; color: #fff; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; }
+        /* Material Icon Alignment Fix */
+        .material-symbols-rounded { vertical-align: middle; font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24; }
+
+        /* Table Enhancements */
+        .prod-table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: center; }
+        .prod-table th, .prod-table td { border: 1px solid #334155; padding: 6px 4px; transition: background-color 0.2s ease; }
+        .prod-table th { color: #f8fafc; font-weight: 800; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
         
-        .hdr-red { background-color: #d32f2f !important; color: white !important; }
-        .hdr-yellow { background-color: #fbc02d !important; color: #000 !important; }
-        .hdr-green { background-color: #689f38 !important; color: white !important; }
-        .hdr-dark { background-color: #212121 !important; color: white !important; }
+        .hdr-red { background-color: #b91c1c !important; color: white !important; }
+        .hdr-yellow { background-color: #ca8a04 !important; color: white !important; }
+        .hdr-green { background-color: #15803d !important; color: white !important; }
+        .hdr-dark { background-color: #0f172a !important; color: white !important; }
         
-        .cell-input { width: 100%; min-width: 45px; background: transparent; border: none; text-align: center; color: white; outline: none; font-weight: 600; }
-        .cell-input:focus { background: rgba(255, 255, 255, 0.1); }
-        .cell-input:disabled { color: #888; cursor: not-allowed; }
+        /* Input Styling */
+        .cell-input { 
+            width: 100%; min-width: 45px; background: transparent; border: 1px solid transparent; 
+            text-align: center; color: white; outline: none; font-weight: 700; border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        .cell-input:focus { background: rgba(255, 255, 255, 0.05); border-color: #fb8c00; box-shadow: 0 0 8px rgba(251, 140, 0, 0.3); }
+        .cell-input:disabled { color: #64748b; cursor: not-allowed; }
         
-        .cell-computed { color: #f57c00; font-weight: 800; }
+        .cell-computed { color: #fb8c00; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
         .variance-good { color: #4ade80; }
         .variance-bad { color: #f87171; }
 
-        .avatar-tiny { width: 16px; height: 16px; border-radius: 50%; position: absolute; bottom: 2px; right: 2px; opacity: 0.8; object-fit: cover; }
+        .avatar-tiny { width: 18px; height: 18px; border-radius: 50%; position: absolute; bottom: -4px; right: -4px; border: 1px solid #1a1d24; opacity: 1; object-fit: cover; }
         .input-wrapper { position: relative; display: flex; align-items: center; justify-content: center; height: 100%; }
 
+        /* Scrollbars */
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #1e1e1e; }
-        ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f1115; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
 
-        .sticky-col { position: sticky; left: 0; z-index: 20; box-shadow: 2px 0 5px rgba(0,0,0,0.5); }
-        .sticky-col-header { position: sticky; left: 0; z-index: 30; box-shadow: 2px 0 5px rgba(0,0,0,0.5); }
+        /* Sticky Columns */
+        .sticky-col { position: sticky; left: 0; z-index: 20; background-color: #1e293b; box-shadow: 3px 0 6px rgba(0,0,0,0.4); }
+        .sticky-col-header { position: sticky; left: 0; z-index: 30; box-shadow: 3px 0 6px rgba(0,0,0,0.4); }
 
-        /* Animation for Chat Bubble */
+        /* Custom Animations */
+        @keyframes menuPop {
+            0% { opacity: 0; transform: scale(0.5) translateY(-20px); }
+            70% { transform: scale(1.05) translateY(5px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .menu-animate { animation: menuPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; transform-origin: top left; }
+        
         @keyframes popIn {
             0% { opacity: 0; transform: scale(0.9) translateY(-10px); }
             100% { opacity: 1; transform: scale(1) translateY(0); }
         }
-        .animate-pop { animation: popIn 0.2s ease-out forwards; }
+        .modal-enter { animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        /* Circular Menu Item Hover Effect */
+        .cat-item { transition: all 0.2s ease; border-left: 3px solid transparent; }
+        .cat-item:hover { background-color: #1e293b; border-left-color: #fb8c00; padding-left: 1.5rem; }
+
+        button { transition: all 0.2s ease-in-out; }
+        button:active { transform: scale(0.90); }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
     <!-- LOGIN MODAL -->
-    <div id="loginModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-        <div class="bg-cardBg p-8 rounded-xl w-full max-w-sm border border-gray-700 shadow-2xl">
-            <h2 class="text-2xl font-black mb-6 text-center text-tatersRed">SYSTEM LOGIN</h2>
-            <div class="space-y-4">
+    <div id="loginModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-cardBg p-8 rounded-3xl w-full max-w-sm border border-gray-700 shadow-2xl modal-enter">
+            <div class="text-center mb-6">
+                <span class="material-symbols-rounded text-tatersRed text-5xl mb-2 drop-shadow-glow">lock</span>
+                <h2 class="text-2xl font-black text-white tracking-widest">SYSTEM LOGIN</h2>
+            </div>
+            <div class="space-y-5">
                 <div>
-                    <label class="block text-sm text-gray-400 mb-1">Name</label>
-                    <input type="text" id="loginName" class="w-full bg-darkBg border border-gray-600 rounded p-2 text-white outline-none">
+                    <label class="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Username</label>
+                    <input type="text" id="loginName" class="w-full bg-darkBg border border-gray-600 focus:border-tatersRed rounded-xl p-3 text-white outline-none transition-all shadow-inner">
                 </div>
                 <div>
-                    <label class="block text-sm text-gray-400 mb-1">Access Code</label>
-                    <input type="password" id="loginCode" class="w-full bg-darkBg border border-gray-600 rounded p-2 text-white outline-none">
+                    <label class="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Access Code</label>
+                    <input type="password" id="loginCode" class="w-full bg-darkBg border border-gray-600 focus:border-tatersRed rounded-xl p-3 text-white outline-none transition-all shadow-inner">
                 </div>
-                <div id="loginError" class="text-red-500 text-sm hidden text-center font-bold">Invalid Name or Code</div>
-                <div class="flex gap-2 pt-2">
-                    <button onclick="document.getElementById('loginModal').classList.add('hidden')" class="flex-1 bg-gray-600 hover:bg-gray-500 py-2 rounded font-bold">Cancel</button>
-                    <button onclick="handleLogin()" class="flex-1 bg-tatersRed hover:bg-red-600 py-2 rounded font-bold text-white">Login</button>
+                <div id="loginError" class="text-red-400 text-sm hidden text-center font-bold bg-red-900/20 py-2 rounded-lg">Invalid Name or Code</div>
+                <div class="flex gap-3 pt-4">
+                    <button onclick="document.getElementById('loginModal').classList.add('hidden')" class="flex-1 bg-transparent border border-gray-600 hover:bg-gray-800 py-3 rounded-xl font-bold text-gray-300">Cancel</button>
+                    <button onclick="handleLogin()" class="flex-1 bg-tatersRed hover:bg-red-600 py-3 rounded-xl font-bold text-white shadow-glow">Login</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- AUDIT LOGS MODAL -->
-    <div id="auditModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-2 lg:p-4">
-        <div class="bg-cardBg p-4 lg:p-6 rounded-xl w-full max-w-3xl border border-gray-700 shadow-2xl flex flex-col max-h-[90vh]">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl lg:text-2xl font-black text-blue-400"><i class="fas fa-history mr-2"></i> System Audit Logs</h2>
-                <button onclick="closeAuditModal()" class="text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+    <div id="auditModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4 transition-opacity">
+        <div class="bg-cardBg p-4 lg:p-6 rounded-3xl w-full max-w-4xl border border-gray-700 shadow-2xl flex flex-col max-h-[90vh] modal-enter">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-800">
+                <h2 class="text-xl lg:text-2xl font-black text-blue-400 flex items-center gap-2">
+                    <span class="material-symbols-rounded">assignment</span> System Audit Logs
+                </h2>
+                <button onclick="closeAuditModal()" class="text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-full w-10 h-10 flex items-center justify-center"><span class="material-symbols-rounded">close</span></button>
             </div>
-            <div class="overflow-y-auto flex-1 border border-gray-700 bg-darkBg rounded p-2">
-                <table class="w-full text-left text-xs lg:text-sm">
-                    <thead class="bg-gray-800 sticky top-0 z-10">
+            <div class="overflow-y-auto flex-1 bg-darkBg rounded-xl p-1 shadow-inner">
+                <table class="w-full text-left text-xs lg:text-sm border-collapse">
+                    <thead class="bg-gray-900 sticky top-0 z-10 shadow-md">
                         <tr>
-                            <th class="p-2 border-b border-gray-700 w-1/4">Timestamp</th>
-                            <th class="p-2 border-b border-gray-700 w-1/4">User</th>
-                            <th class="p-2 border-b border-gray-700 w-1/2">Action Taken</th>
+                            <th class="p-3 border-b border-gray-700 w-1/4 font-extrabold uppercase text-gray-400">Timestamp</th>
+                            <th class="p-3 border-b border-gray-700 w-1/4 font-extrabold uppercase text-gray-400">User</th>
+                            <th class="p-3 border-b border-gray-700 w-1/2 font-extrabold uppercase text-gray-400">Action Taken</th>
                         </tr>
                     </thead>
-                    <tbody id="auditListBody">
-                        <!-- Populated via JS -->
-                    </tbody>
+                    <tbody id="auditListBody" class="divide-y divide-gray-800"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
     <!-- ADMIN SETTINGS MODAL -->
-    <div id="adminModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-2 lg:p-4">
-        <div class="bg-cardBg p-4 lg:p-6 rounded-xl w-full max-w-5xl border border-gray-700 shadow-2xl flex flex-col max-h-[95vh]">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl lg:text-2xl font-black text-tatersOrange"><i class="fas fa-cogs mr-2"></i> Administrator Settings</h2>
-                <button onclick="closeAdminModal()" class="text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+    <div id="adminModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4 transition-opacity">
+        <div class="bg-cardBg p-4 lg:p-6 rounded-3xl w-full max-w-6xl border border-gray-700 shadow-2xl flex flex-col max-h-[95vh] modal-enter">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-800">
+                <h2 class="text-xl lg:text-2xl font-black text-tatersOrange flex items-center gap-2">
+                    <span class="material-symbols-rounded">tune</span> Administrator Settings
+                </h2>
+                <button onclick="closeAdminModal()" class="text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-full w-10 h-10 flex items-center justify-center"><span class="material-symbols-rounded">close</span></button>
             </div>
             
-            <div class="flex flex-col md:flex-row gap-4 overflow-hidden flex-1">
-                <div class="w-full md:w-1/3 flex flex-col gap-4 overflow-y-auto pr-2">
+            <div class="flex flex-col md:flex-row gap-6 overflow-hidden flex-1">
+                <div class="w-full md:w-1/3 flex flex-col gap-5 overflow-y-auto pr-2 custom-scrollbar">
+                    
                     <!-- BRAND SETTINGS -->
-                    <div class="bg-darkBg p-4 rounded border border-gray-700">
-                        <h3 class="font-bold mb-3 text-white border-b border-gray-600 pb-1"><i class="fas fa-image text-tatersOrange"></i> Brand Settings</h3>
-                        <div class="space-y-3 text-sm">
+                    <div class="bg-darkBg p-5 rounded-2xl border border-gray-800 shadow-subtle">
+                        <h3 class="font-bold mb-4 text-white flex items-center gap-2 uppercase tracking-wide text-xs">
+                            <span class="material-symbols-rounded text-tatersOrange text-[18px]">brush</span> Brand Settings
+                        </h3>
+                        <div class="space-y-4 text-sm">
                             <div>
-                                <label class="text-gray-400 text-xs">Main Logo</label>
+                                <label class="text-gray-500 text-[10px] uppercase font-bold tracking-wider mb-1 block">Main Logo URL</label>
                                 <div class="flex gap-2 items-center">
-                                    <input type="text" id="brandLogoUrl" placeholder="Logo Link" class="flex-1 bg-cardBg border border-gray-600 rounded p-1.5 text-white text-xs" readonly>
+                                    <input type="text" id="brandLogoUrl" placeholder="Logo Link" class="flex-1 bg-cardBg border border-gray-700 focus:border-tatersOrange rounded-xl p-2 text-white text-xs outline-none transition" readonly>
                                     <input type="file" id="logoUpload" accept="image/*" class="hidden" onchange="uploadToImgBB(this, 'brandLogoUrl')">
-                                    <button onclick="document.getElementById('logoUpload').click()" class="bg-blue-600 hover:bg-blue-500 px-2 py-1 rounded text-white font-bold text-xs"><i class="fas fa-upload"></i></button>
+                                    <button onclick="document.getElementById('logoUpload').click()" class="bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-xl text-white font-bold text-xs"><span class="material-symbols-rounded text-[18px]">cloud_upload</span></button>
                                 </div>
                             </div>
                             <div>
-                                <label class="text-gray-400 text-xs">Favicon</label>
+                                <label class="text-gray-500 text-[10px] uppercase font-bold tracking-wider mb-1 block">Favicon URL</label>
                                 <div class="flex gap-2 items-center">
-                                    <input type="text" id="brandFaviconUrl" placeholder="Favicon Link" class="flex-1 bg-cardBg border border-gray-600 rounded p-1.5 text-white text-xs" readonly>
+                                    <input type="text" id="brandFaviconUrl" placeholder="Favicon Link" class="flex-1 bg-cardBg border border-gray-700 focus:border-tatersOrange rounded-xl p-2 text-white text-xs outline-none transition" readonly>
                                     <input type="file" id="faviconUpload" accept="image/*" class="hidden" onchange="uploadToImgBB(this, 'brandFaviconUrl')">
-                                    <button onclick="document.getElementById('faviconUpload').click()" class="bg-blue-600 hover:bg-blue-500 px-2 py-1 rounded text-white font-bold text-xs"><i class="fas fa-upload"></i></button>
+                                    <button onclick="document.getElementById('faviconUpload').click()" class="bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-xl text-white font-bold text-xs"><span class="material-symbols-rounded text-[18px]">cloud_upload</span></button>
                                 </div>
                             </div>
-                            <button onclick="saveBrandSettings()" class="w-full bg-tatersOrange hover:bg-orange-600 py-1.5 rounded font-bold text-white text-xs shadow-md mt-2">Save Brand Settings</button>
+                            <button onclick="saveBrandSettings()" class="w-full bg-tatersOrange hover:bg-orange-600 py-2.5 rounded-xl font-bold text-black text-xs shadow-md mt-2 tracking-wide uppercase">Save Brand</button>
                         </div>
                     </div>
 
                     <!-- USER FORM -->
-                    <div class="bg-darkBg p-4 rounded border border-gray-700">
-                        <h3 class="font-bold mb-3 text-white border-b border-gray-600 pb-1" id="userFormTitle"><i class="fas fa-user-plus text-tatersGreen"></i> Add / Edit User</h3>
+                    <div class="bg-darkBg p-5 rounded-2xl border border-gray-800 shadow-subtle relative">
+                        <h3 class="font-bold mb-4 text-white flex items-center gap-2 uppercase tracking-wide text-xs" id="userFormTitle">
+                            <span class="material-symbols-rounded text-tatersGreen text-[18px]">person_add</span> Add / Edit User
+                        </h3>
                         <input type="hidden" id="editOldCode">
-                        <div class="space-y-3 text-sm">
+                        <div class="space-y-4 text-sm">
                             <div>
-                                <label class="text-gray-400 text-xs">Name</label>
-                                <input type="text" id="uName" class="w-full bg-cardBg border border-gray-600 rounded p-1.5 text-white">
+                                <label class="text-gray-500 text-[10px] uppercase font-bold tracking-wider mb-1 block">Name</label>
+                                <input type="text" id="uName" class="w-full bg-cardBg border border-gray-700 focus:border-tatersGreen rounded-xl p-2 text-white outline-none transition">
                             </div>
                             <div>
-                                <label class="text-gray-400 text-xs">Access Code</label>
-                                <input type="text" id="uCode" class="w-full bg-cardBg border border-gray-600 rounded p-1.5 text-white">
+                                <label class="text-gray-500 text-[10px] uppercase font-bold tracking-wider mb-1 block">Access Code</label>
+                                <input type="text" id="uCode" class="w-full bg-cardBg border border-gray-700 focus:border-tatersGreen rounded-xl p-2 text-white outline-none transition">
                             </div>
                             <div>
-                                <label class="text-gray-400 text-xs">Role</label>
-                                <select id="uRole" class="w-full bg-cardBg border border-gray-600 rounded p-1.5 text-white">
-                                    <option value="staff">Staff</option>
+                                <label class="text-gray-500 text-[10px] uppercase font-bold tracking-wider mb-1 block">Role</label>
+                                <select id="uRole" class="w-full bg-cardBg border border-gray-700 focus:border-tatersGreen rounded-xl p-2 text-white outline-none transition appearance-none">
+                                    <option value="staff">Staff Member</option>
                                     <option value="tc">Team Captain</option>
                                     <option value="admin">Administrator</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="text-gray-400 text-xs">Avatar</label>
+                                <label class="text-gray-500 text-[10px] uppercase font-bold tracking-wider mb-1 block">Avatar URL</label>
                                 <div class="flex gap-2 items-center">
-                                    <input type="text" id="uAvatar" placeholder="Image Link" class="flex-1 bg-cardBg border border-gray-600 rounded p-1.5 text-white text-xs" readonly>
+                                    <input type="text" id="uAvatar" placeholder="Image Link" class="flex-1 bg-cardBg border border-gray-700 focus:border-tatersGreen rounded-xl p-2 text-white text-xs outline-none transition" readonly>
                                     <input type="file" id="imgUpload" accept="image/*" class="hidden" onchange="uploadToImgBB(this, 'uAvatar')">
-                                    <button onclick="document.getElementById('imgUpload').click()" class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded text-white font-bold text-xs whitespace-nowrap"><i class="fas fa-upload"></i></button>
+                                    <button onclick="document.getElementById('imgUpload').click()" class="bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-xl text-white font-bold text-xs"><span class="material-symbols-rounded text-[18px]">image</span></button>
                                 </div>
                             </div>
-                            <div class="pt-2 flex gap-2">
-                                <button onclick="clearUserForm()" class="flex-1 bg-gray-700 hover:bg-gray-600 py-1.5 rounded font-bold text-white text-xs">Clear</button>
-                                <button onclick="saveUser()" class="flex-1 bg-tatersGreen hover:bg-green-600 py-1.5 rounded font-bold text-white text-xs shadow-md">Save User</button>
+                            <div class="pt-3 flex gap-3">
+                                <button onclick="clearUserForm()" class="flex-1 bg-transparent border border-gray-600 hover:bg-gray-800 py-2.5 rounded-xl font-bold text-gray-300 text-xs uppercase tracking-wide">Clear</button>
+                                <button onclick="saveUser()" class="flex-1 bg-tatersGreen hover:bg-green-600 py-2.5 rounded-xl font-bold text-white text-xs shadow-md uppercase tracking-wide">Save User</button>
                             </div>
                         </div>
+                        <div id="uploadStatus" class="absolute top-2 right-4 text-[10px] font-bold hidden bg-gray-800 px-2 py-1 rounded"></div>
                     </div>
-                    <div id="uploadStatus" class="text-xs font-bold text-center hidden"></div>
                 </div>
 
-                <div class="w-full md:w-2/3 overflow-y-auto border border-gray-700 rounded bg-darkBg">
-                    <table class="w-full text-left text-xs lg:text-sm">
-                        <thead class="bg-gray-800 sticky top-0 z-10">
-                            <tr>
-                                <th class="p-2 border-b border-gray-700">Pic</th>
-                                <th class="p-2 border-b border-gray-700">Name</th>
-                                <th class="p-2 border-b border-gray-700">Role</th>
-                                <th class="p-2 border-b border-gray-700">Code</th>
-                                <th class="p-2 border-b border-gray-700 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="userListBody" class="bg-darkBg"></tbody>
-                    </table>
+                <!-- Users List -->
+                <div class="w-full md:w-2/3 overflow-hidden border border-gray-800 rounded-2xl bg-darkBg flex flex-col shadow-subtle">
+                    <div class="overflow-y-auto flex-1">
+                        <table class="w-full text-left text-xs lg:text-sm border-collapse">
+                            <thead class="bg-gray-900 sticky top-0 z-10 shadow-sm">
+                                <tr>
+                                    <th class="p-3 border-b border-gray-800 text-gray-500 uppercase tracking-wider text-[10px] font-extrabold w-12 text-center">Pic</th>
+                                    <th class="p-3 border-b border-gray-800 text-gray-500 uppercase tracking-wider text-[10px] font-extrabold">Name</th>
+                                    <th class="p-3 border-b border-gray-800 text-gray-500 uppercase tracking-wider text-[10px] font-extrabold">Role</th>
+                                    <th class="p-3 border-b border-gray-800 text-gray-500 uppercase tracking-wider text-[10px] font-extrabold">Access Code</th>
+                                    <th class="p-3 border-b border-gray-800 text-gray-500 uppercase tracking-wider text-[10px] font-extrabold text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userListBody" class="divide-y divide-gray-800"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- HEADER -->
-    <header class="bg-cardBg border-b border-gray-800 p-4 flex flex-col md:flex-row gap-4 justify-between md:items-center shadow-md">
+    <!-- HEADER (Sticky & Glassmorphism) -->
+    <header class="sticky top-0 z-40 backdrop-blur-md bg-[#1a1d24]/90 border-b border-gray-800 p-4 flex flex-col md:flex-row gap-4 justify-between md:items-center shadow-lg">
+        
         <!-- Left Area -->
-        <div class="flex flex-wrap items-center gap-3">
-            <h1 class="text-xl lg:text-2xl font-black text-tatersRed tracking-wider uppercase flex items-center gap-2">
-                <img id="mainAppLogo" src="" class="h-8 hidden object-contain rounded" alt="Logo">
-                <span id="mainAppText">Taters Production Plan</span>
-            </h1>
+        <div class="flex items-center gap-4 relative z-50">
+            <!-- CIRCULAR CATEGORY BUTTON -->
+            <button onclick="toggleDropdown()" class="w-12 h-12 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border border-gray-600 shadow-lg flex items-center justify-center hover:scale-110 hover:border-tatersOrange hover:shadow-[0_0_15px_rgba(251,140,0,0.4)] transition-all relative z-50" title="Select Category">
+                <span class="material-symbols-rounded text-tatersOrange text-2xl">apps</span>
+            </button>
             
-            <div class="relative z-40">
-                <button onclick="toggleDropdown()" class="bg-darkBg border border-gray-700 px-3 py-1.5 rounded font-bold flex items-center gap-2 hover:bg-gray-800 transition text-sm">
-                    <span id="currentCatLabel">🍿 POPCORN</span>
-                    <i class="fas fa-chevron-down text-xs"></i>
-                </button>
-                <div id="catDropdown" class="hidden absolute top-full left-0 mt-1 w-64 bg-cardBg border border-gray-700 rounded shadow-xl overflow-hidden">
-                    <button onclick="selectCategory('popcorn')" class="w-full text-left px-4 py-3 hover:bg-darkBg font-bold text-sm border-b border-gray-800">🍿 POPCORN</button>
-                    <button onclick="selectCategory('cornachos')" class="w-full text-left px-4 py-3 hover:bg-darkBg font-bold text-sm border-b border-gray-800">🧀 YELLOW CORNACHOS</button>
-                    <button onclick="selectCategory('juices')" class="w-full text-left px-4 py-3 hover:bg-darkBg font-bold text-sm border-b border-gray-800">🧃 JUICES</button>
-                    <button onclick="selectCategory('sauces')" class="w-full text-left px-4 py-3 hover:bg-darkBg font-bold text-sm">🥫 SAUCES & TOPPINGS</button>
-                </div>
+            <!-- Logo & Active Category Name -->
+            <div class="flex flex-col justify-center">
+                <h1 class="text-sm font-bold text-gray-400 tracking-wider flex items-center gap-2">
+                    <img id="mainAppLogo" src="" class="h-4 hidden object-contain rounded" alt="Logo">
+                    <span id="mainAppText">Taters Tool</span>
+                </h1>
+                <span id="currentCatLabel" class="font-black tracking-widest text-lg lg:text-xl text-white drop-shadow-md">🍿 POPCORN PRODUCTION</span>
             </div>
 
-            <!-- View Toggle -->
-            <button id="viewToggleBtn" onclick="toggleViewMode()" class="bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded text-xs font-bold text-white transition flex items-center gap-1 shadow">
-                <i class="fas fa-desktop"></i> <span id="viewToggleText">Desktop View</span>
-            </button>
+            <!-- POP-OUT CATEGORY MENU -->
+            <div id="catDropdown" class="hidden absolute top-14 left-0 mt-2 w-72 bg-cardBg border border-gray-700 rounded-2xl shadow-2xl overflow-hidden z-40 menu-animate">
+                <div class="py-2 flex flex-col">
+                    <button onclick="selectCategory('popcorn')" class="cat-item w-full text-left px-5 py-4 font-bold text-sm text-gray-200 flex items-center gap-3 border-b border-gray-800/50">
+                        <span class="text-xl">🍿</span> POPCORN PRODUCTION
+                    </button>
+                    <button onclick="selectCategory('cornachos')" class="cat-item w-full text-left px-5 py-4 font-bold text-sm text-gray-200 flex items-center gap-3 border-b border-gray-800/50">
+                        <span class="text-xl">🧀</span> YELLOW CORNACHOS
+                    </button>
+                    <button onclick="selectCategory('sandwiches')" class="cat-item w-full text-left px-5 py-4 font-bold text-sm text-gray-200 flex items-center gap-3 border-b border-gray-800/50">
+                        <span class="text-xl">🍔</span> SANDWICHES
+                    </button>
+                    <button onclick="selectCategory('juices')" class="cat-item w-full text-left px-5 py-4 font-bold text-sm text-gray-200 flex items-center gap-3 border-b border-gray-800/50">
+                        <span class="text-xl">🧃</span> JUICES
+                    </button>
+                    <button onclick="selectCategory('sauces')" class="cat-item w-full text-left px-5 py-4 font-bold text-sm text-gray-200 flex items-center gap-3">
+                        <span class="text-xl">🥫</span> SAUCES & TOPPINGS
+                    </button>
+                </div>
+            </div>
         </div>
         
         <!-- Right Area -->
         <div class="flex flex-wrap items-center gap-3">
-            <div class="flex items-center gap-2 bg-darkBg border border-gray-700 px-2 py-1 rounded text-sm">
-                <span class="font-bold text-gray-400 text-xs">WEEK OF:</span>
-                <input type="date" id="weekSelector" class="bg-transparent text-white outline-none font-bold cursor-pointer" onchange="generateTables()">
+            
+            <!-- View Toggle -->
+            <button id="viewToggleBtn" onclick="toggleViewMode()" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 px-3 py-2 rounded-xl text-xs font-bold text-gray-300 transition flex items-center gap-2 shadow-sm">
+                <span class="material-symbols-rounded text-[18px] text-blue-400">desktop_windows</span> <span id="viewToggleText" class="hidden sm:inline">Desktop View</span>
+            </button>
+
+            <!-- SINGLE DATE PICKER (Act as Week Start) -->
+            <div class="flex items-center gap-2 bg-darkBg border border-gray-700 px-3 py-2 rounded-xl text-sm shadow-inner">
+                <span class="material-symbols-rounded text-gray-500 text-[18px]">calendar_month</span>
+                <input type="date" id="weekSelector" class="bg-transparent text-gray-200 outline-none font-bold cursor-pointer uppercase tracking-wide text-xs" onchange="generateTables()">
             </div>
 
-            <!-- User Profile Section with Clickable Avatar Chat Bubble -->
-            <div id="userProfile" class="hidden relative flex items-center gap-2 bg-darkBg px-2 py-1 rounded border border-gray-700 z-50">
-                <img id="userAvatar" src="" class="w-7 h-7 rounded-full border-2 border-gray-500 object-cover cursor-pointer hover:border-tatersOrange transition" onclick="toggleUserBubble()" title="Click to view info">
+            <!-- User Profile Section -->
+            <div id="userProfile" class="hidden relative flex items-center gap-3 bg-darkBg px-3 py-1.5 rounded-xl border border-gray-700 z-50 shadow-sm">
+                <img id="userAvatar" src="" class="w-8 h-8 rounded-full border border-gray-600 object-cover cursor-pointer hover:border-tatersOrange transition-colors" onclick="toggleUserBubble()" title="Profile">
                 
-                <!-- Chat Bubble (Hidden initially) -->
-                <div id="userBubble" class="hidden absolute top-full mt-3 left-1/2 transform -translate-x-1/2 bg-gray-800 border border-gray-600 rounded shadow-2xl p-3 z-50 w-40 text-center animate-pop">
-                    <!-- Pointer Triangle -->
-                    <div class="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-gray-800 border-t border-l border-gray-600 rotate-45"></div>
+                <!-- Chat Bubble -->
+                <div id="userBubble" class="hidden absolute top-full mt-4 right-0 md:left-1/2 md:-translate-x-1/2 bg-gray-800 border border-gray-600 rounded-2xl shadow-2xl p-4 z-50 w-48 text-center animate-pop origin-top">
+                    <div class="absolute -top-2 right-6 md:left-1/2 md:-translate-x-1/2 w-4 h-4 bg-gray-800 border-t border-l border-gray-600 rotate-45"></div>
                     <div class="relative z-10">
-                        <div class="font-black text-white text-sm whitespace-nowrap" id="bubbleName">User</div>
-                        <div class="text-[10px] uppercase text-tatersOrange font-bold tracking-wider mt-0.5" id="bubbleRole">Role</div>
+                        <div class="font-black text-white text-base tracking-wide" id="bubbleName">User</div>
+                        <div class="text-[10px] uppercase text-tatersOrange font-extrabold tracking-widest mt-1 bg-gray-900 rounded py-1" id="bubbleRole">Role</div>
+                        <button onclick="logout()" class="mt-3 w-full bg-red-900/50 hover:bg-red-800 text-red-200 text-xs font-bold py-1.5 rounded transition">Logout</button>
                     </div>
                 </div>
 
-                <div class="flex flex-col hidden sm:flex pointer-events-none">
-                    <span id="userName" class="text-xs font-bold leading-tight">User</span>
-                    <span id="userRole" class="text-[9px] uppercase text-tatersOrange font-black tracking-wider leading-tight">Role</span>
+                <div class="flex flex-col hidden sm:flex pointer-events-none text-left pr-2">
+                    <span id="userName" class="text-sm font-bold leading-none text-white tracking-wide">User</span>
+                    <span id="userRole" class="text-[9px] uppercase text-tatersOrange font-black tracking-widest mt-1">Role</span>
                 </div>
-                <button onclick="logout()" class="ml-1 text-gray-400 hover:text-red-500" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
             </div>
             
-            <button id="loginBtn" onclick="document.getElementById('loginModal').classList.remove('hidden')" class="bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded text-sm font-bold shadow">
-                <i class="fas fa-user mr-1"></i>Login
+            <button id="loginBtn" onclick="document.getElementById('loginModal').classList.remove('hidden')" class="bg-tatersRed hover:bg-red-600 px-4 py-2 rounded-xl text-sm font-bold text-white shadow-glow transition flex items-center gap-2">
+                <span class="material-symbols-rounded text-[20px]">login</span> Login
             </button>
 
-            <!-- Audit Logs Button (Only visible to TC & Admin) -->
-            <button id="auditBtn" onclick="openAuditModal()" class="hidden bg-blue-700 hover:bg-blue-600 px-3 py-1.5 rounded text-sm font-bold text-white shadow-lg transition" title="View Audit Logs">
-                <i class="fas fa-history"></i>
+            <!-- Action Buttons -->
+            <button id="auditBtn" onclick="openAuditModal()" class="hidden bg-blue-600/20 text-blue-400 border border-blue-500/50 hover:bg-blue-600 hover:text-white px-3 py-2 rounded-xl text-sm font-bold transition shadow-sm" title="Audit Logs">
+                <span class="material-symbols-rounded text-[20px]">history</span>
             </button>
 
-            <!-- Admin Settings Button -->
-            <button id="adminBtn" onclick="openAdminModal()" class="hidden bg-purple-700 hover:bg-purple-600 px-3 py-1.5 rounded text-sm font-bold text-white shadow-lg transition" title="Admin Settings">
-                <i class="fas fa-cogs"></i>
+            <button id="adminBtn" onclick="openAdminModal()" class="hidden bg-purple-600/20 text-purple-400 border border-purple-500/50 hover:bg-purple-600 hover:text-white px-3 py-2 rounded-xl text-sm font-bold transition shadow-sm" title="Settings">
+                <span class="material-symbols-rounded text-[20px]">settings</span>
             </button>
             
-            <button onclick="printToNewTab()" class="bg-tatersRed hover:bg-red-700 px-3 py-1.5 rounded text-sm font-bold text-white shadow-lg">
-                <i class="fas fa-print"></i> Print
+            <button onclick="printToNewTab()" class="bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-xl text-sm font-bold text-white shadow-sm transition">
+                <span class="material-symbols-rounded text-[20px]">print</span>
             </button>
         </div>
     </header>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-1 overflow-x-auto p-2 lg:p-6 relative flex flex-col">
-        <div id="tableContainer" class="flex flex-col gap-6 max-w-[1400px] mx-auto pb-10 w-full"></div>
+    <main class="flex-1 overflow-x-auto p-3 lg:p-8 relative flex flex-col items-center">
+        <div id="tableContainer" class="flex flex-col gap-10 max-w-[1450px] w-full pb-12"></div>
     </main>
     
     <!-- FOOTER -->
-    <footer class="w-full text-center py-4 bg-darkBg border-t border-gray-800 text-gray-500 font-bold text-xs mt-auto">
+    <footer class="w-full text-center py-5 bg-[#1a1d24] border-t border-gray-800 text-gray-500 font-bold text-[10px] uppercase tracking-widest mt-auto">
         Created by Tyler Jarvey Templeton
     </footer>
 
     <!-- LOGIC SCRIPT -->
     <script type="module">
-        // Added 'query' and 'limitToLast' from Firebase Database for the logs query
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, onValue, update, set, remove, push, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
@@ -325,16 +390,18 @@
             window.isMobileView = !window.isMobileView;
             const meta = document.getElementById('viewportMeta');
             const btnText = document.getElementById('viewToggleText');
-            const btnIcon = document.querySelector('#viewToggleBtn i');
+            const btnIcon = document.querySelector('#viewToggleBtn span');
 
             if(window.isMobileView) {
                 meta.setAttribute('content', 'width=device-width, initial-scale=1.0');
                 btnText.innerText = 'Desktop View'; 
-                btnIcon.className = 'fas fa-desktop';
+                btnIcon.innerText = 'desktop_windows';
+                btnIcon.className = 'material-symbols-rounded text-[18px] text-blue-400';
             } else {
-                meta.setAttribute('content', 'width=1300');
+                meta.setAttribute('content', 'width=1400');
                 btnText.innerText = 'Mobile View';
-                btnIcon.className = 'fas fa-mobile-alt';
+                btnIcon.innerText = 'smartphone';
+                btnIcon.className = 'material-symbols-rounded text-[18px] text-green-400';
             }
         };
 
@@ -345,22 +412,24 @@
         window.currentUser = null;
         window.currentCategory = 'popcorn';
         
-        const today = new Date();
-        const firstDay = new Date(today.setDate(today.getDate() - today.getDay() + 1));
-        document.getElementById('weekSelector').value = firstDay.toISOString().split('T')[0];
         const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const today = new Date();
+        // Snap the initial date selector to the current week's Monday
+        const firstDay = new Date(today.setDate(today.getDate() - (today.getDay() || 7) + 1));
+        document.getElementById('weekSelector').value = firstDay.toISOString().split('T')[0];
 
         const schemas = {
-            popcorn: { label: '🍿 POPCORN PRODUCTION', title: 'POPCORN PRODUCTION PLAN FORM', titleBg: 'bg-tatersRed text-white', shifts: [{name: '10 - 2', class: 'hdr-red'}, {name: '2 - 6', class: 'hdr-red'}, {name: '6 - 10', class: 'hdr-red'}], items: [{id: 'batches', name: '# OF BATCHES', isMain: true, roundInt: true}, {id: 'wt', name: 'TOTAL WT (0.500g)', roundInt: false, isReadonly: true, planOnly: true}] },
-            cornachos: { label: '🧀 YELLOW CORNACHOS', title: 'WARMED YELLOW CORNACHOS PRODUCTION PLAN', titleBg: 'bg-tatersYellow text-blue-900', shifts: [{name: '10 - 2', class: 'hdr-yellow'}, {name: '2 - 6', class: 'hdr-red'}, {name: '6 - 10', class: 'hdr-green'}], items: [{id: 'cornachos', name: 'YELLOW CORNACHOS', isMain: true, roundInt: false}] },
-            juices: { label: '🧃 JUICES', title: 'JUICES PRODUCTION PLAN FORM', titleBg: 'bg-tatersRed text-white', shifts: [{name: '10 - 2', class: 'hdr-green'}, {name: '2 - 6', class: 'hdr-green'}, {name: '6 - 10', class: 'hdr-green'}], items: [{id: 'iced_tea', name: 'Iced Tea', isMain: true, roundInt: true}, {id: 'sf_lemonade', name: 'SF Lemonade', isMain: true, roundInt: true}] },
-            sauces: { label: '🥫 SAUCES & TOPPINGS', title: 'WARMED SAUCES & TOPPINGS', titleBg: 'bg-gray-800 text-white', shifts: [{name: '10AM - 4PM', class: 'hdr-yellow'}, {name: '4PM - 10PM', class: 'hdr-green'}], items: [{id: 'quezo', name: 'QUEZO DIP'}, {id: 'coney', name: 'CONEY ISLAND'}, {id: 'butter', name: 'BUTTER'}, {id: 'beef', name: 'GROUND BEEF'}, {id: 'sc', name: 'SC DIP'}] }
+            popcorn: { label: '🍿 POPCORN PRODUCTION', title: 'POPCORN PRODUCTION PLAN FORM', titleBg: 'bg-gradient-to-r from-red-800 to-red-600 text-white', shifts: [{name: '10 - 2', class: 'hdr-red'}, {name: '2 - 6', class: 'hdr-red'}, {name: '6 - 10', class: 'hdr-red'}], items: [{id: 'batches', name: '# OF BATCHES', isMain: true, roundInt: true}, {id: 'wt', name: 'TOTAL WT (0.500g)', roundInt: false, isReadonly: true, planOnly: true}] },
+            cornachos: { label: '🧀 YELLOW CORNACHOS', title: 'WARMED YELLOW CORNACHOS PRODUCTION PLAN', titleBg: 'bg-gradient-to-r from-yellow-600 to-yellow-500 text-white', shifts: [{name: '10 - 2', class: 'hdr-yellow'}, {name: '2 - 6', class: 'hdr-red'}, {name: '6 - 10', class: 'hdr-green'}], items: [{id: 'cornachos', name: 'YELLOW CORNACHOS', isMain: true, roundInt: false}] },
+            sandwiches: { label: '🍔 SANDWICHES', title: 'SANDWICH PRODUCTION PLAN (THAWED)', titleBg: 'bg-gradient-to-r from-orange-800 to-orange-600 text-white', shifts: [{name: '10AM - 4PM', class: 'hdr-yellow'}, {name: '4PM - 10PM', class: 'hdr-green'}], items: [{id: 'angus_patty', name: 'ANGUS PATTY'}, {id: 'churkey_hotdog', name: 'CHURKEY HOTDOG'}, {id: 'beef_hotdog', name: 'BEEF HOTDOG'}] },
+            juices: { label: '🧃 JUICES', title: 'JUICES PRODUCTION PLAN FORM', titleBg: 'bg-gradient-to-r from-green-800 to-green-600 text-white', shifts: [{name: '10 - 2', class: 'hdr-green'}, {name: '2 - 6', class: 'hdr-green'}, {name: '6 - 10', class: 'hdr-green'}], items: [{id: 'iced_tea', name: 'Iced Tea', isMain: true, roundInt: true}, {id: 'sf_lemonade', name: 'SF Lemonade', isMain: true, roundInt: true}] },
+            sauces: { label: '🥫 SAUCES & TOPPINGS', title: 'WARMED SAUCES & TOPPINGS', titleBg: 'bg-gradient-to-r from-gray-800 to-gray-700 text-white', shifts: [{name: '10AM - 4PM', class: 'hdr-yellow'}, {name: '4PM - 10PM', class: 'hdr-green'}], items: [{id: 'quezo', name: 'QUEZO DIP'}, {id: 'coney', name: 'CONEY ISLAND'}, {id: 'butter', name: 'BUTTER'}, {id: 'beef', name: 'GROUND BEEF'}, {id: 'sc', name: 'SC DIP'}] }
         };
 
         const defaultAccounts = {
-            'TJ112293120064': { name: 'Tyler', role: 'admin', code: 'TJ112293120064', avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Tyler&backgroundColor=d32f2f' },
-            'vercelynTC': { name: 'Vercelyn', role: 'tc', code: 'vercelynTC', avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Vercelyn&backgroundColor=f57c00' },
-            'staff01': { name: 'Juan Staff', role: 'staff', code: 'staff01', avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Juan&backgroundColor=388e3c' }
+            'admin01': { name: 'Admin', role: 'admin', code: 'admin01', avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Admin&backgroundColor=e53935' },
+            'tc01': { name: 'Captain', role: 'tc', code: 'tc01', avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Captain&backgroundColor=fb8c00' },
+            'staff01': { name: 'Staff', role: 'staff', code: 'staff01', avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Staff&backgroundColor=43a047' }
         };
         window.systemUsers = defaultAccounts; 
 
@@ -375,7 +444,7 @@
                 const data = snapshot.val();
                 if(data) window.applyBrandSettings(data.logo, data.favicon);
             });
-        } catch(e) { console.warn("Local Mode / Firebase Not Configured Properly."); }
+        } catch(e) { console.warn("Local Mode Active."); }
 
         // ==========================================
         // AUTH & UI LOGIC
@@ -384,33 +453,34 @@
             const name = document.getElementById('loginName').value.trim();
             const code = document.getElementById('loginCode').value.trim();
             const user = window.systemUsers[code];
+            
             if (user && user.name.toLowerCase() === name.toLowerCase()) {
                 window.currentUser = user;
                 
-                // Hide Login Button / Error Modal
                 document.getElementById('loginModal').classList.add('hidden');
                 document.getElementById('loginBtn').classList.add('hidden');
                 document.getElementById('loginError').classList.add('hidden');
                 
-                // Set User Profile Data
                 document.getElementById('userProfile').classList.remove('hidden');
                 document.getElementById('userName').innerText = user.name;
                 document.getElementById('userAvatar').src = user.avatar;
                 
                 let roleDisplay = user.role === 'tc' ? 'Team Captain' : (user.role === 'admin' ? 'Administrator' : 'Staff');
                 document.getElementById('userRole').innerText = roleDisplay;
-                
-                // Set Chat Bubble Data
                 document.getElementById('bubbleName').innerText = user.name;
                 document.getElementById('bubbleRole').innerText = roleDisplay;
 
-                // Show Admin & Audit buttons conditionally based on role
                 if(user.role === 'admin') document.getElementById('adminBtn').classList.remove('hidden');
                 if(user.role === 'admin' || user.role === 'tc') document.getElementById('auditBtn').classList.remove('hidden');
                 
                 logAudit(`Logged in to system.`);
                 window.generateTables(); 
-            } else { document.getElementById('loginError').classList.remove('hidden'); }
+            } else { 
+                const err = document.getElementById('loginError');
+                err.classList.remove('hidden'); 
+                err.classList.add('animate-pulse');
+                setTimeout(()=> err.classList.remove('animate-pulse'), 1000);
+            }
         };
 
         window.logout = function() {
@@ -425,27 +495,25 @@
             window.generateTables();
         };
 
-        // User Avatar Chat Bubble Toggle
         window.toggleUserBubble = function() {
             document.getElementById('userBubble').classList.toggle('hidden');
         };
 
-        // Close Chat Bubble if clicked outside
         document.addEventListener('click', function(event) {
             const profile = document.getElementById('userProfile');
             const bubble = document.getElementById('userBubble');
-            if (profile && !profile.contains(event.target)) {
-                bubble.classList.add('hidden');
-            }
+            const catDrop = document.getElementById('catDropdown');
+            const catBtn = document.querySelector('button[onclick="toggleDropdown()"]');
+
+            if (profile && !profile.contains(event.target)) bubble.classList.add('hidden');
+            if (catDrop && !catDrop.contains(event.target) && !catBtn.contains(event.target)) catDrop.classList.add('hidden');
         });
 
         // ==========================================
-        // AUDIT LOGS MODAL LOGIC
+        // AUDIT LOGS
         // ==========================================
         window.openAuditModal = function() {
             document.getElementById('auditModal').classList.remove('hidden');
-            
-            // Query the last 100 logs from Firebase
             const auditRef = query(ref(db, 'audit_logs'), limitToLast(100));
             onValue(auditRef, (snapshot) => {
                 const data = snapshot.val();
@@ -453,28 +521,22 @@
                 tbody.innerHTML = '';
                 
                 if(data) {
-                    // Convert to Array and Sort from Newest to Oldest
                     const logs = Object.values(data).sort((a, b) => new Date(b.time) - new Date(a.time));
-                    
                     logs.forEach(log => {
                         const dateStr = new Date(log.time).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
                         tbody.innerHTML += `
-                            <tr class="border-b border-gray-700 hover:bg-gray-800 transition">
-                                <td class="p-2 text-gray-400 whitespace-nowrap">${dateStr}</td>
-                                <td class="p-2 font-bold text-tatersOrange">${log.user}</td>
-                                <td class="p-2 text-white">${log.action}</td>
-                            </tr>
-                        `;
+                            <tr class="hover:bg-gray-800 transition-colors">
+                                <td class="p-3 text-gray-500 text-xs whitespace-nowrap font-mono">${dateStr}</td>
+                                <td class="p-3 font-bold text-tatersOrange">${log.user}</td>
+                                <td class="p-3 text-gray-300">${log.action}</td>
+                            </tr>`;
                     });
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="3" class="text-center p-4 text-gray-500 font-bold">No records found.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="3" class="text-center p-6 text-gray-600 font-bold">No records found.</td></tr>';
                 }
             });
         };
-
-        window.closeAuditModal = function() {
-            document.getElementById('auditModal').classList.add('hidden');
-        };
+        window.closeAuditModal = function() { document.getElementById('auditModal').classList.add('hidden'); };
 
         window.toggleDropdown = function() { document.getElementById('catDropdown').classList.toggle('hidden'); };
         window.selectCategory = function(cat) {
@@ -502,13 +564,7 @@
             if (window.currentCategory === 'popcorn') {
                 const b = document.getElementById(`inp_plan_${dayName}_batches`);
                 const w = document.getElementById(`inp_plan_${dayName}_wt`);
-                if (b && w) {
-                    if (b.value !== "") {
-                        w.value = (parseFloat(b.value) * 0.500).toFixed(3).replace(/\.?0+$/, '');
-                    } else {
-                        w.value = "";
-                    }
-                }
+                if (b && w) w.value = b.value !== "" ? (parseFloat(b.value) * 0.500).toFixed(3).replace(/\.?0+$/, '') : "";
             }
 
             let dists = [];
@@ -523,13 +579,10 @@
                     let subPlanEl = document.getElementById(`calc_subplan_${dayName}_${item.id}_${i}`);
                     if(subPlanEl) {
                         let subCalc = (planVal * dists[i]) / 100;
-                        if(subCalc > 0) {
-                            subPlanEl.innerText = item.roundInt ? Math.round(subCalc) : subCalc.toFixed(3).replace(/\.?0+$/, '');
-                        } else { subPlanEl.innerText = ''; } 
+                        if(subCalc > 0) subPlanEl.innerText = item.roundInt ? Math.round(subCalc) : subCalc.toFixed(3).replace(/\.?0+$/, '');
+                        else subPlanEl.innerText = ''; 
                     }
-                    if (!item.planOnly) {
-                        totalAct += parseFloat(document.getElementById(`inp_act_${dayName}_${item.id}_${i}`)?.value) || 0;
-                    }
+                    if (!item.planOnly) totalAct += parseFloat(document.getElementById(`inp_act_${dayName}_${item.id}_${i}`)?.value) || 0;
                 });
 
                 if (!item.planOnly) {
@@ -552,18 +605,18 @@
                             varEl.innerText = variance.toFixed(2);
                             pctEl.innerText = `${pctVar}%`;
                             if(variance > 0) {
-                                varEl.className = 'bg-gray-900 font-bold variance-good';
-                                pctEl.className = 'bg-gray-900 font-bold variance-good';
+                                varEl.className = 'bg-[#1a2e1d] font-black variance-good border-l border-[#2e5235]';
+                                pctEl.className = 'bg-[#1a2e1d] font-black variance-good';
                             } else if(variance < 0) {
-                                varEl.className = 'bg-gray-900 font-bold variance-bad';
-                                pctEl.className = 'bg-gray-900 font-bold variance-bad';
+                                varEl.className = 'bg-[#331818] font-black variance-bad border-l border-[#5a2a2a]';
+                                pctEl.className = 'bg-[#331818] font-black variance-bad';
                             } else {
-                                varEl.className = 'bg-gray-900 font-bold text-gray-500';
-                                pctEl.className = 'bg-gray-900 font-bold text-gray-500';
+                                varEl.className = 'bg-[#1a1d24] font-black text-gray-400 border-l border-gray-700';
+                                pctEl.className = 'bg-[#1a1d24] font-black text-gray-400';
                             }
                         } else {
                             varEl.innerText = ''; pctEl.innerText = '';
-                            varEl.className = 'bg-gray-900 font-bold'; pctEl.className = 'bg-gray-900 font-bold';
+                            varEl.className = 'bg-[#1a1d24] font-bold'; pctEl.className = 'bg-[#1a1d24] font-bold';
                         }
                     }
                 }
@@ -571,73 +624,76 @@
         };
 
         // ==========================================
-        // TABLE GENERATION
+        // 7-DAY WEEK TABLE GENERATION
         // ==========================================
         window.generateTables = function() {
             const schema = schemas[window.currentCategory];
             const container = document.getElementById('tableContainer');
-            container.innerHTML = '';
+            container.innerHTML = ''; // Clear container
+            
             const selectedDate = new Date(document.getElementById('weekSelector').value);
             
             daysOfWeek.forEach((dayName, index) => {
                 const currentDate = new Date(selectedDate);
                 currentDate.setDate(selectedDate.getDate() + index);
-                const dateStr = `${(currentDate.getMonth()+1).toString().padStart(2, '0')}/${currentDate.getDate().toString().padStart(2, '0')}`;
-
+                
+                // Formatted as MM/DD/YYYY
+                const dateStr = `${(currentDate.getMonth()+1).toString().padStart(2, '0')}/${currentDate.getDate().toString().padStart(2, '0')}/${currentDate.getFullYear()}`;
+                
                 const itemHeaderText = window.currentCategory === 'popcorn' ? '' : 'ITEM';
 
                 let html = `
-                <div class="bg-cardBg border-2 border-gray-700 shadow-xl overflow-x-auto rounded day-container" id="container_${dayName}">
-                    <div class="${schema.titleBg} text-center py-1 font-black text-sm lg:text-lg tracking-widest border-b border-gray-700 whitespace-nowrap">${schema.title}</div>
-                    <div class="overflow-x-auto">
-                        <table class="prod-table min-w-[900px] w-full text-xs lg:text-sm relative" id="table_${dayName}">
+                <div class="bg-cardBg border border-gray-700 shadow-xl overflow-hidden rounded-2xl w-full day-container" id="container_${dayName}">
+                    <div class="${schema.titleBg} text-center py-3 font-black text-sm lg:text-xl tracking-widest border-b border-gray-800 whitespace-nowrap drop-shadow-md shadow-inner">${schema.title}</div>
+                    <div class="overflow-x-auto custom-scrollbar bg-darkBg">
+                        <table class="prod-table min-w-[1000px] w-full text-xs lg:text-sm relative" id="table_${dayName}">
                             <thead>
                                 <tr>
-                                    <th class="hdr-dark w-24 lg:w-32 sticky-col-header">DATE:</th>
-                                    <th class="hdr-dark text-base lg:text-xl font-black tracking-widest text-left pl-4" colspan="${schema.shifts.length * 2 + 2}">
-                                        ${dateStr}
+                                    <th class="hdr-dark w-28 lg:w-40 sticky-col-header text-gray-400">DATE:</th>
+                                    <th class="hdr-dark text-lg lg:text-2xl font-black tracking-widest text-left pl-5 text-blue-300" colspan="${schema.shifts.length * 2 + 2}">
+                                        ${dayName.toUpperCase()} - ${dateStr}
                                     </th>
-                                    <th class="hdr-dark w-16 lg:w-24 text-[10px] lg:text-xs leading-tight">Ending Balance</th>
-                                    <th class="hdr-dark w-16 lg:w-24 text-[10px] lg:text-xs leading-tight">Total Usage</th>
-                                    <th class="hdr-dark w-16 lg:w-24 text-[10px] lg:text-xs leading-tight">Variance</th>
-                                    <th class="hdr-dark w-16 lg:w-24 text-[10px] lg:text-xs leading-tight">% Variance</th>
+                                    <th class="hdr-dark w-20 lg:w-28 text-[10px] lg:text-[11px] leading-tight text-gray-400 font-extrabold uppercase bg-[#14181f]">Ending Balance</th>
+                                    <th class="hdr-dark w-20 lg:w-28 text-[10px] lg:text-[11px] leading-tight text-gray-400 font-extrabold uppercase bg-[#14181f]">Total Usage</th>
+                                    <th class="hdr-dark w-20 lg:w-28 text-[10px] lg:text-[11px] leading-tight text-gray-400 font-extrabold uppercase bg-[#14181f]">Variance</th>
+                                    <th class="hdr-dark w-20 lg:w-28 text-[10px] lg:text-[11px] leading-tight text-gray-400 font-extrabold uppercase bg-[#14181f]">% Variance</th>
                                 </tr>
                                 <tr>
-                                    <th class="bg-gray-800 text-gray-400 border-r-0 sticky-col-header">${itemHeaderText}</th>
-                                    <th class="bg-gray-800 border-l-0 border-r-0">PLAN</th>
-                                    <th class="bg-gray-800 border-l-0">BEG BAL</th>
-                                    ${schema.shifts.map(shift => `<th colspan="2" class="${shift.class}">${shift.name}</th>`).join('')}
-                                    <th class="bg-gray-800" rowspan="3"></th><th class="bg-gray-800" rowspan="3"></th><th class="bg-gray-800" rowspan="3"></th><th class="bg-gray-800" rowspan="3"></th>
+                                    <th class="bg-[#1e293b] text-gray-300 border-r-0 sticky-col-header">${itemHeaderText}</th>
+                                    <th class="bg-[#1e293b] border-l-0 border-r-0 text-white">PLAN</th>
+                                    <th class="bg-[#1e293b] border-l-0 text-white whitespace-nowrap px-2">BEG BAL</th>
+                                    ${schema.shifts.map(shift => `<th colspan="2" class="${shift.class} shadow-inner text-[13px]">${shift.name}</th>`).join('')}
+                                    <th class="bg-[#14181f]" rowspan="3"></th><th class="bg-[#14181f]" rowspan="3"></th><th class="bg-[#14181f]" rowspan="3"></th><th class="bg-[#14181f]" rowspan="3"></th>
                                 </tr>
                                 <tr>
-                                    <th class="bg-gray-800 text-right pr-2 text-gray-400 sticky-col-header" colspan="1">Distribution %</th>
-                                    <th class="bg-gray-800 text-right pr-2 text-gray-400" colspan="2"></th>
+                                    <th class="bg-[#1e293b] text-right pr-3 text-tatersOrange sticky-col-header font-black text-[10px]" colspan="1">Distribution %</th>
+                                    <th class="bg-[#1e293b] text-right pr-2" colspan="2"></th>
                                     ${schema.shifts.map((s, i) => `
-                                        <th colspan="2" class="bg-gray-900">
+                                        <th colspan="2" class="bg-[#0f172a]">
                                             <div class="input-wrapper">
-                                                <input type="number" id="inp_dist_${dayName}_${i}" class="cell-input text-tatersOrange font-bold" placeholder="0%" 
+                                                <input type="number" id="inp_dist_${dayName}_${i}" class="cell-input text-tatersOrange text-[15px] font-black" placeholder="0%" 
                                                 ${canEdit('dist') ? '' : 'disabled'} data-day="${dayName}" data-type="dist" data-index="${i}" oninput="recalcDay('${dayName}')">
-                                                <img id="av_dist_${dayName}_${i}" class="avatar-tiny hidden">
+                                                <img id="av_dist_${dayName}_${i}" class="avatar-tiny hidden shadow-sm">
                                             </div>
                                         </th>
                                     `).join('')}
                                 </tr>
                                 <tr>
-                                    <th class="bg-gray-800 border-b-2 border-gray-600 sticky-col-header" colspan="1"></th>
-                                    <th class="bg-gray-800 border-b-2 border-gray-600" colspan="2"></th>
-                                    ${schema.shifts.map(() => `<th class="bg-gray-800 text-gray-400 border-b-2 border-gray-600 w-12 lg:w-16">plan</th><th class="bg-gray-800 text-gray-400 border-b-2 border-gray-600 w-12 lg:w-16">act.</th>`).join('')}
+                                    <th class="bg-[#1e293b] border-b-[3px] border-gray-700 sticky-col-header" colspan="1"></th>
+                                    <th class="bg-[#1e293b] border-b-[3px] border-gray-700" colspan="2"></th>
+                                    ${schema.shifts.map(() => `<th class="bg-[#1e293b] text-gray-400 border-b-[3px] border-gray-700 w-16 uppercase text-[9px] font-black">Plan</th><th class="bg-[#1e293b] text-gray-400 border-b-[3px] border-gray-700 w-16 uppercase text-[9px] font-black">Act.</th>`).join('')}
                                 </tr>
                             </thead>
                             <tbody>
                 `;
 
                 schema.items.forEach(item => {
-                    html += `<tr class="hover:bg-gray-800/50 transition">
-                        <td class="font-bold text-left px-2 bg-gray-900 border-r-0 whitespace-nowrap text-[10px] lg:text-xs sticky-col">${item.name}</td>
+                    html += `<tr class="hover:bg-gray-800/60 transition-colors group">
+                        <td class="font-extrabold text-left px-5 py-3 bg-[#1e293b] border-r-0 whitespace-nowrap text-xs text-gray-200 sticky-col group-hover:bg-[#253247] shadow-[2px_0_5px_rgba(0,0,0,0.2)]">${item.name}</td>
                         
-                        <td class="${item.isMain ? 'bg-green-900/30' : 'bg-gray-800'} border-l-0 border-r-0 font-bold">
+                        <td class="${item.isMain ? 'bg-green-900/20' : 'bg-[#1a1d24]'} border-l-0 border-r-0 font-bold">
                             <div class="input-wrapper">
-                                <input type="number" id="inp_plan_${dayName}_${item.id}" class="cell-input ${item.isReadonly ? 'text-tatersOrange' : 'text-tatersGreen'}" 
+                                <input type="number" id="inp_plan_${dayName}_${item.id}" class="cell-input text-base ${item.isReadonly ? 'text-tatersOrange bg-transparent' : 'text-tatersGreen bg-[#0f1115]/50'}" 
                                 ${canEdit('plan') ? (item.isReadonly ? 'readonly tabindex="-1"' : '') : 'disabled'} data-day="${dayName}" data-item="${item.id}" data-type="plan" oninput="recalcDay('${dayName}')">
                                 <img id="av_plan_${dayName}_${item.id}" class="avatar-tiny hidden">
                              </div>
@@ -645,12 +701,12 @@
                         
                     // BEG BAL
                     if (item.planOnly) {
-                        html += `<td class="bg-gray-900 border-l-0"></td>`;
+                        html += `<td class="bg-[#1a1d24] border-l-0"></td>`;
                     } else {
                         html += `
-                        <td class="bg-gray-900 border-l-0 relative">
+                        <td class="bg-[#1a1d24] border-l-0 relative">
                             <div class="input-wrapper">
-                                <input type="number" id="inp_beg_${dayName}_${item.id}" class="cell-input" 
+                                <input type="number" id="inp_beg_${dayName}_${item.id}" class="cell-input text-blue-300 bg-[#0f1115]/50 text-base" 
                                 ${canEdit('beg') ? '' : 'disabled'} data-day="${dayName}" data-item="${item.id}" data-type="beg" oninput="recalcDay('${dayName}')">
                                 <img id="av_beg_${dayName}_${item.id}" class="avatar-tiny hidden">
                             </div>
@@ -659,14 +715,14 @@
                     
                     // SHIFTS
                     schema.shifts.forEach((_, i) => {
-                        html += `<td class="bg-gray-800/50 text-center"><span id="calc_subplan_${dayName}_${item.id}_${i}" class="cell-computed text-xs"></span></td>`;
+                        html += `<td class="bg-[#14181f]/80 text-center border-l border-gray-700/50"><span id="calc_subplan_${dayName}_${item.id}_${i}" class="cell-computed text-[13px]"></span></td>`;
                         if (item.planOnly) {
-                            html += `<td class="bg-gray-900"></td>`;
+                            html += `<td class="bg-[#1a1d24]"></td>`;
                         } else {
                             html += `
-                            <td class="bg-gray-900 relative">
+                            <td class="bg-[#1a1d24] relative">
                                 <div class="input-wrapper">
-                                    <input type="number" id="inp_act_${dayName}_${item.id}_${i}" class="cell-input text-white" 
+                                    <input type="number" id="inp_act_${dayName}_${item.id}_${i}" class="cell-input text-white bg-[#0f1115]/50 text-base" 
                                     ${canEdit('act') ? '' : 'disabled'} data-day="${dayName}" data-item="${item.id}" data-type="act" data-index="${i}" oninput="recalcDay('${dayName}')">
                                     <img id="av_act_${dayName}_${item.id}_${i}" class="avatar-tiny hidden">
                                 </div>
@@ -676,25 +732,26 @@
                     
                     // END BAL, USG, VAR, PCT
                     if (item.planOnly) {
-                        html += `<td class="bg-gray-900" colspan="4"></td></tr>`;
+                        html += `<td class="bg-[#14181f] border-l-[3px] border-gray-700" colspan="4"></td></tr>`;
                     } else {
                         html += `
-                            <td class="bg-gray-900 relative">
+                            <td class="bg-[#1a1d24] relative border-l-[3px] border-gray-700">
                                 <div class="input-wrapper">
-                                    <input type="number" id="inp_end_${dayName}_${item.id}" class="cell-input" 
+                                    <input type="number" id="inp_end_${dayName}_${item.id}" class="cell-input text-blue-300 bg-[#0f1115]/50 text-base" 
                                     ${canEdit('end') ? '' : 'disabled'} data-day="${dayName}" data-item="${item.id}" data-type="end" oninput="recalcDay('${dayName}')">
                                     <img id="av_end_${dayName}_${item.id}" class="avatar-tiny hidden">
                                 </div>
                             </td>
-                            <td class="bg-gray-900 font-bold" id="calc_usg_${dayName}_${item.id}"></td>
-                            <td class="bg-gray-900 font-bold" id="calc_var_${dayName}_${item.id}"></td>
-                            <td class="bg-gray-900 font-bold" id="calc_pct_${dayName}_${item.id}"></td>
+                            <td class="bg-[#14181f] font-bold text-gray-300 text-base" id="calc_usg_${dayName}_${item.id}"></td>
+                            <td class="bg-[#14181f] font-bold text-base" id="calc_var_${dayName}_${item.id}"></td>
+                            <td class="bg-[#14181f] font-bold text-base" id="calc_pct_${dayName}_${item.id}"></td>
                         </tr>`;
                     }
                 });
                 html += `</tbody></table></div></div>`;
-                container.innerHTML += html;
+                container.innerHTML += html; // Append each day
             });
+            
             document.querySelectorAll('.cell-input').forEach(input => { input.addEventListener('blur', handleInputSave); });
             fetchFirebaseData();
         };
@@ -707,6 +764,8 @@
 
             const { day, type, item, index } = input.dataset;
             const weekId = document.getElementById('weekSelector').value;
+            
+            // Path structure remains isolated per day based on the selected Week date
             let dbPath = `plans/${weekId}/${window.currentCategory}/${day}`;
             let updates = {};
 
@@ -724,7 +783,7 @@
                     updates[`items/wt/${type}${suffix}_by`] = fireVal !== null ? window.currentUser.avatar : null;
                 }
             }
-            try { update(ref(db, dbPath), updates); logAudit(`Updated [${schemas[window.currentCategory].label}] -> ${day} | ${item || 'Distribution'} | ${type} = ${val}`); } catch(err) {}
+            try { update(ref(db, dbPath), updates); logAudit(`Updated ${schemas[window.currentCategory].label} > ${day} > ${item || 'Dist'} > ${type} = ${val}`); } catch(err) {}
         };
 
         function fetchFirebaseData() {
@@ -732,6 +791,7 @@
             try {
                 onValue(ref(db, `plans/${weekId}/${window.currentCategory}`), (snapshot) => {
                     const data = snapshot.val() || {};
+                    
                     daysOfWeek.forEach(day => {
                         const dayData = data[day] || {};
                         const schema = schemas[window.currentCategory];
@@ -787,8 +847,8 @@
             if(!file) return;
 
             const statusEl = document.getElementById('uploadStatus');
-            statusEl.innerText = "Uploading to ImgBB... Please wait.";
-            statusEl.className = "text-xs mt-2 font-bold text-tatersOrange";
+            statusEl.innerText = "Uploading...";
+            statusEl.className = "absolute top-2 right-4 text-[10px] font-bold bg-orange-900 text-orange-300 px-2 py-1 rounded animate-pulse";
             statusEl.classList.remove('hidden');
 
             const formData = new FormData();
@@ -796,27 +856,25 @@
 
             try {
                 const response = await fetch('https://api.imgbb.com/1/upload?key=7724936e20f64065e89def6ec3c5a5da', {
-                    method: 'POST',
-                    body: formData
+                    method: 'POST', body: formData
                 });
-                
                 const data = await response.json();
                 
                 if(data.success) {
                     document.getElementById(targetInputId).value = data.data.url;
-                    statusEl.innerText = "Upload successful!";
-                    statusEl.classList.replace('text-tatersOrange', 'text-tatersGreen');
+                    statusEl.innerText = "Success!";
+                    statusEl.className = "absolute top-2 right-4 text-[10px] font-bold bg-green-900 text-green-300 px-2 py-1 rounded";
                 } else {
-                    statusEl.innerText = "Upload failed. Try another image.";
-                    statusEl.classList.replace('text-tatersOrange', 'text-red-500');
+                    statusEl.innerText = "Failed.";
+                    statusEl.className = "absolute top-2 right-4 text-[10px] font-bold bg-red-900 text-red-300 px-2 py-1 rounded";
                 }
             } catch(e) {
-                statusEl.innerText = "Error connecting to ImgBB.";
-                statusEl.classList.replace('text-tatersOrange', 'text-red-500');
+                statusEl.innerText = "Error.";
+                statusEl.className = "absolute top-2 right-4 text-[10px] font-bold bg-red-900 text-red-300 px-2 py-1 rounded";
             }
             
             input.value = ''; 
-            setTimeout(() => statusEl.classList.add('hidden'), 4000);
+            setTimeout(() => statusEl.classList.add('hidden'), 3000);
         };
 
         // ==========================================
@@ -829,7 +887,6 @@
             const logo = document.getElementById('brandLogoUrl').value;
             const fav = document.getElementById('brandFaviconUrl').value;
             try { set(ref(db, 'settings/brand'), { logo, favicon: fav }); } catch(e){}
-            alert("Brand settings saved successfully!");
             window.applyBrandSettings(logo, fav);
         };
 
@@ -843,7 +900,6 @@
                 document.getElementById('mainAppLogo').classList.add('hidden');
                 document.getElementById('mainAppText').classList.remove('hidden');
             }
-
             if(fav) {
                 document.getElementById('dynamicFavicon').href = fav;
                 document.getElementById('brandFaviconUrl').value = fav;
@@ -854,17 +910,17 @@
             const tbody = document.getElementById('userListBody');
             tbody.innerHTML = '';
             Object.values(window.systemUsers).forEach(u => {
-                let badgeColor = u.role === 'admin' ? 'bg-purple-600' : (u.role === 'tc' ? 'bg-orange-600' : 'bg-green-600');
-                let roleName = u.role === 'admin' ? 'Admin' : (u.role === 'tc' ? 'TC' : 'Staff');
+                let badgeColor = u.role === 'admin' ? 'bg-purple-900 text-purple-200 border-purple-700' : (u.role === 'tc' ? 'bg-orange-900 text-orange-200 border-orange-700' : 'bg-green-900 text-green-200 border-green-700');
+                let roleName = u.role === 'admin' ? 'Admin' : (u.role === 'tc' ? 'Captain' : 'Staff');
                 tbody.innerHTML += `
-                    <tr class="border-b border-gray-700 hover:bg-gray-800 transition">
-                        <td class="p-2"><img src="${u.avatar}" class="w-8 h-8 rounded-full border border-gray-500 object-cover"></td>
-                        <td class="p-2 font-bold text-white">${u.name}</td>
-                        <td class="p-2"><span class="text-[9px] px-2 py-1 rounded font-black uppercase tracking-wider text-white ${badgeColor}">${roleName}</span></td>
-                        <td class="p-2 text-gray-400 text-xs">${u.code}</td>
-                        <td class="p-2 text-center space-x-2">
-                            <button onclick="editUser('${u.code}')" class="text-blue-400 hover:text-blue-300"><i class="fas fa-edit"></i></button>
-                            ${u.role !== 'admin' ? `<button onclick="deleteUser('${u.code}')" class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>` : ''}
+                    <tr class="hover:bg-gray-800 transition-colors group">
+                        <td class="p-3 text-center"><img src="${u.avatar}" class="w-8 h-8 rounded-full border border-gray-600 object-cover mx-auto group-hover:border-white transition-colors"></td>
+                        <td class="p-3 font-bold text-gray-200">${u.name}</td>
+                        <td class="p-3"><span class="text-[9px] px-2 py-0.5 rounded border font-black uppercase tracking-widest ${badgeColor}">${roleName}</span></td>
+                        <td class="p-3 text-gray-500 font-mono text-xs">${u.code}</td>
+                        <td class="p-3 text-center space-x-3">
+                            <button onclick="editUser('${u.code}')" class="text-blue-500 hover:text-blue-400 hover:scale-110 transition-transform"><span class="material-symbols-rounded text-[20px]">edit</span></button>
+                            ${u.role !== 'admin' ? `<button onclick="deleteUser('${u.code}')" class="text-red-500 hover:text-red-400 hover:scale-110 transition-transform"><span class="material-symbols-rounded text-[20px]">delete</span></button>` : ''}
                         </td>
                     </tr>`;
             });
@@ -876,14 +932,14 @@
             document.getElementById('uCode').value = '';
             document.getElementById('uRole').value = 'staff';
             document.getElementById('uAvatar').value = '';
-            document.getElementById('userFormTitle').innerHTML = '<i class="fas fa-user-plus text-tatersGreen"></i> Add New User';
+            document.getElementById('userFormTitle').innerHTML = '<span class="material-symbols-rounded text-tatersGreen text-[18px]">person_add</span> Add New User';
             document.getElementById('uploadStatus').classList.add('hidden');
         };
 
         window.editUser = function(code) {
             const user = window.systemUsers[code];
             if(user) {
-                document.getElementById('userFormTitle').innerHTML = '<i class="fas fa-user-edit text-blue-400"></i> Edit User';
+                document.getElementById('userFormTitle').innerHTML = '<span class="material-symbols-rounded text-blue-400 text-[18px]">edit</span> Edit User';
                 document.getElementById('editOldCode').value = code;
                 document.getElementById('uName').value = user.name;
                 document.getElementById('uCode').value = user.code;
@@ -901,7 +957,7 @@
 
             if(!name || !code) return alert('Name and Access Code are required.');
             if(!avatar) {
-                let color = role === 'admin' ? 'd32f2f' : (role === 'tc' ? 'f57c00' : '388e3c');
+                let color = role === 'admin' ? 'e53935' : (role === 'tc' ? 'fb8c00' : '43a047');
                 avatar = `https://api.dicebear.com/7.x/initials/svg?seed=${name}&backgroundColor=${color}`;
             }
             const userData = { name, code, role, avatar };
@@ -913,7 +969,6 @@
             
             clearUserForm();
             renderUserList();
-            alert('User saved successfully!');
         };
 
         window.deleteUser = function(code) {
@@ -929,20 +984,18 @@
             const printContent = `<!DOCTYPE html><html><head><title>Print - ${schemas[window.currentCategory].label}</title>
                 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
                 <style>
-                    body { font-family: 'Nunito', sans-serif; background: #fff; color: #000; padding: 20px; font-size: 12px; }
+                    body { font-family: 'Nunito', sans-serif; background: #fff; color: #000; padding: 20px; font-size: 14px; }
                     .day-container { margin-bottom: 30px; page-break-inside: avoid; }
-                    .prod-table { width: 100%; border-collapse: collapse; text-align: center; }
-                    .prod-table th, .prod-table td { border: 1px solid #000; padding: 4px; }
-                    .prod-table th { font-weight: bold; text-transform: uppercase; font-size: 11px; }
-                    .hdr-red, .bg-tatersRed { background-color: #d32f2f !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                    .hdr-yellow, .bg-tatersYellow { background-color: #fbc02d !important; color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                    .hdr-green { background-color: #689f38 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                    .hdr-dark, .bg-gray-800 { background-color: #222 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                    .bg-gray-900 { background-color: #fff !important; color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                    .prod-table { width: 100%; border-collapse: collapse; text-align: center; border: 2px solid #000; margin-top: 10px; }
+                    .prod-table th, .prod-table td { border: 1px solid #000; padding: 8px; }
+                    .prod-table th { font-weight: bold; text-transform: uppercase; font-size: 12px; }
+                    .hdr-red, .hdr-yellow, .hdr-green, .hdr-dark, th[class*="bg-"], td[class*="bg-"] { 
+                        background-color: transparent !important; color: #000 !important; border: 1px solid #000; 
+                    }
+                    div[class*="bg-gradient"] { background: #eee !important; color: #000 !important; font-size: 18px; font-weight: bold; padding: 10px; border: 2px solid #000; text-align: center;}
                     input { display: none; }
-                    .print-val { font-weight: bold; }
+                    .print-val { font-weight: bold; font-size: 14px; }
                     .avatar-tiny { display: none !important; }
-                    .text-gray-400 { color: #555 !important; }
                 </style></head><body>${rawHtml}</body></html>`;
 
             const printWindow = window.open('', '_blank');
@@ -960,6 +1013,7 @@
             setTimeout(() => { printWindow.print(); }, 500);
         };
 
+        // Initialize Table
         window.generateTables();
     </script>
 </body>
